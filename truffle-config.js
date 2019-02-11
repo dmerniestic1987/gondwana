@@ -22,8 +22,9 @@
  *
  */
 
-// const HDWallet = require('truffle-hdwallet-provider');
-// const infuraKey = "fj4jll3k.....";
+const HDWalletProvider = require('truffle-hdwallet-provider');
+const infuraKey = "a9..";
+const mnemonic = "also ";
 //
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
@@ -37,6 +38,23 @@ module.exports = {
    * network from the command line, e.g
    *
    * $ truffle test --network <network-name>
+   * 
+   * ID de las redes: 
+   * 0: Olympic, Ethereum public pre-release testnet
+    1: Frontier, Homestead, Metropolis, the Ethereum public main network
+    1: Classic, the (un)forked public Ethereum Classic main network, chain ID 61
+    1: Expanse, an alternative Ethereum implementation, chain ID 2
+    2: Morden, the public Ethereum testnet, now Ethereum Classic testnet
+    3: Ropsten, the public cross-client Ethereum testnet
+    4: Rinkeby, the public Geth PoA testnet
+    8: Ubiq, the public Gubiq main network with flux difficulty chain ID 8
+    42: Kovan, the public Parity PoA testnet
+    77: Sokol, the public POA Network testnet
+    99: Core, the public POA Network main network
+    100: xDai, the public MakerDAO/POA Network main network
+    401697: Tobalaba, the public Energy Web Foundation testnet
+    7762959: Musicoin, the music blockchain
+    61717561: Aquachain, ASIC resistant chain
    */
 
   networks: {
@@ -46,11 +64,11 @@ module.exports = {
     // tab if you use this network and you must also set the `host`, `port` and `network_id`
     // options below to some value.
     //
-    // development: {
-    //  host: "127.0.0.1",     // Localhost (default: none)
-    //  port: 8545,            // Standard Ethereum port (default: none)
-    //  network_id: "*",       // Any network (default: none)
-    // },
+    development: {
+      host: "127.0.0.1",     // Localhost (default: none)
+      port: 8545,            // Standard Ethereum port (default: none)
+      network_id: "*",       // Any network (default: none)
+    },
 
     // Another network with more advanced options...
     // advanced: {
@@ -62,16 +80,38 @@ module.exports = {
       // websockets: true        // Enable EventEmitter interface for web3 (default: false)
     // },
 
-    // Useful for deploying to a public network.
-    // NB: It's important to wrap the provider as a function.
-    // ropsten: {
-      // provider: () => new HDWalletProvider(mnemonic, `https://ropsten.infura.io/${infuraKey}`),
-      // network_id: 3,       // Ropsten's id
-      // gas: 5500000,        // Ropsten has a lower block limit than mainnet
-      // confirmations: 2,    // # of confs to wait between deployments. (default: 0)
-      // timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-      // skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
-    // },
+    kovan: {
+      provider: () => new HDWalletProvider(mnemonic, "https://kovan.infura.io/${infuraKey}", 0),
+      network_id: 42,       // kovan's id
+      gas: 5500000,        // kovan has a lower block limit than mainnet
+      confirmations: 2,    // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    },
+    ropsten: {
+      provider: () => new HDWalletProvider(mnemonic, "https://ropsten.infura.io/${infuraKey}", 0),
+      network_id: 3,       // Ropsten's id
+      gas: 5500000,        // Ropsten has a lower block limit than mainnet
+      confirmations: 2,    // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    },
+     rinkeby: {
+       provider: () => new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/${infuraKey}", 0),
+       network_id: 4,       // rinkeby's id
+       gas: 5500000,        // rinkeby has a lower block limit than mainnet
+       confirmations: 2,    // # of confs to wait between deployments. (default: 0)
+       timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+       skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+     },
+     mainnet: {
+      provider: () => new HDWalletProvider(mnemonic, "https://mainnet.infura.io/${infuraKey}", 0),
+      network_id: 1,       // rinkeby's id
+      gas: 5500000,        // rinkeby has a lower block limit than mainnet
+      confirmations: 2,    // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    }
 
     // Useful for private networks
     // private: {
@@ -79,25 +119,5 @@ module.exports = {
       // network_id: 2111,   // This network is yours, in the cloud.
       // production: true    // Treats this network as if it was a public net. (default: false)
     // }
-  },
-
-  // Set default mocha options here, use special reporters etc.
-  mocha: {
-    // timeout: 100000
-  },
-
-  // Configure your compilers
-  compilers: {
-    solc: {
-      // version: "0.5.1",    // Fetch exact version from solc-bin (default: truffle's version)
-      // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
-      // settings: {          // See the solidity docs for advice about optimization and evmVersion
-      //  optimizer: {
-      //    enabled: false,
-      //    runs: 200
-      //  },
-      //  evmVersion: "byzantium"
-      // }
-    }
   }
 }
