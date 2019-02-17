@@ -14,70 +14,38 @@ import "./Ownable.sol";
  *
  */
 contract VersusMatches is Ownable{
-    //Constantes para registrar a un competidor como vistante o local en un Match
-    uint8 constant private LOCAL_COMPETITOR   = 0;
-    uint8 constant private VISITOR_COMPETITOR = 1;
-
     //Evento emitido cuando se crea un nuevo Match
-    event NewMatch(uint id, uint256 idLaurasia, uint128 competition);
-
-    enum MatchStatus { PENDING, PLAYING, SUPENDED, FINISHED, REPROGRAMMED }
-    enum MatchDefinition { NO_DEFINITION        //Por ejemplo partido suspendido
-                         , KO, TKO , SUBMISSION //Definición de deportes de combate
-                         , DESQULIFICATION      //Descalificación
-                         , RETIREMENT           //Retiro o abandono, por ejemplo tira la toalla
-                         , SPLIT_DECISION, UNANIMOUS_DECISION, MAYORITY_DECISION, POINTS_DECISION
-                         , TIME_OUT             //Se terminó el tiempo para un juador, por ejemplo ajedrez
-                         , OTHER }
-    
+    event NewMatch(uint256 idLaurasia);
+    event UpdateMatch(uint256 idLaurasia);
+  
     //MatchType puede ser por ejemplo Fútbol, Boxeo, MMA. Se flexibiliza
     //para agregar otros tipos en el futuro.
     struct MatchType{
         bool canDraw;       //true si se puede empatar, false de lo contrario
         string description; //descripción
-        uint matchCounter;  //Permite contar la cantidad de matces registrados
+        uint matchCounter;  //Permite contar la cantidad de matches registrados
     }
 
     //Match corresponde aun evento determinado, por ejemplo un partido de Fútbol
     //o un combate de artes marciales mixtas.
     struct Match{
-        uint128 competition;  //id de la competición en Betex Laurasia
+        uint128 idCompetition;  //Id de la competition en Laurasia  
         uint128 matchType;    //id del tipo de match, en el contrato   
-        uint    startDate;    //timestamp del inicio del evento.
-        MatchStatus status;   //estado  
-    }
-
-    //MatchResult permite registrar el resultado de un evento deporitvo
-    struct MatchResult{
-        MatchDefinition definition; //tipo de definción
-        bool  draw;                 //true si empataron.
-        uint128 winner; //id del ganador  en Betex Laurasia. Si es empate va 0.
-        uint128 looser; //id del pertedor en Betex Laurasia. Si es empate va 0.
-        uint32 scoreWinner; //puntaje del ganador. 
-        uint32 scoreLooser; //puntaje del perdedor.
+        uint    startDate;    //timestamp del inicio del evento con timezone GMT
+        string  country;      //País donde se juega el evento en formato  ISO 3166-2. Si es una internacional
+                              //por ejemplo la copa libertadores o un partido de la FIFA dirá "INTL"
     }
 
     //Key: Id de Laurasia. Se mantiene uniformidad
     mapping(uint128 => MatchType) public matchTypes;
-    
-    //Id de match: Índice
-    Match[] public matches; 
-    
-    //Permite determinar el ID de un Match en base al id de Larusia
-    mapping(uint256 => uint) private matchesLaurasia;
-
-    //Key: Id de Match
-    mapping(uint256 => MatchResult) public matchesResults; 
-
-    //Verifica si existe un resultado de match. Key: Id del Match
-    mapping(uint256 => bool) private matchesResultChecker;    
-
-    //Verifica si existe un match. Key: Id del Match
-    mapping(uint256 => bool) private matchesChecker; 
-
     //Verifica si existe un match. Key: Id del tipo de Match, por ejemplo deporte
     mapping(uint128 => bool) private matchTypesChecker;
 
+    //Permite determinar el ID de un Match. Key: Id Laursia, Value: id. indice de matches
+    mapping(uint256 => Match)  public matches;    
+    //Verifica si existe un match. Key: id del Match
+    mapping(uint256 => bool) private matchesLaurasiaExistence;
+ 
     // ======================== MATCH TYPES ======================== //
     /**
      * @dev Verifica si existe el MatchType
@@ -86,20 +54,6 @@ contract VersusMatches is Ownable{
      */
     function matchTypeExists(uint128 _matchTypeId) public view returns(bool){
         return matchTypesChecker[_matchTypeId];
-    }
-
-    /**
-     * @dev Obtiene un MatchType, incluyendo su contador de eventos
-     * @param _matchTypeId - Id Laurasia del tipo de Match
-     * @return MatchType - La información del MatchType
-     */
-    function getMatchType(uint128 _matchTypeId) public view returns( bool canDraw, 
-                                                                     string memory description, 
-                                                                     uint matchCounter ){
-
-        canDraw = matchTypes[_matchTypeId].canDraw;
-        description = matchTypes[_matchTypeId].description;
-        matchCounter = matchTypes[_matchTypeId].matchCounter;
     }
 
     /**
@@ -129,24 +83,53 @@ contract VersusMatches is Ownable{
     }   
 
     // ======================== MATCHES ======================== //
-/*
-        uint128 competition;  //id de la competición en Betex Laurasia
-        uint128 matchType;    //id del tipo de match, en el contrato   
-        uint    startDate;    //timestamp del inicio del evento.
-        MatchStatus status;   //estado  
-        string name;
-*/
-
-    function createMatch( uint256 _idLaurasia, uint128 _competition, uint128 _idMatchType
-                        , uint _startDateTimestamp ) external onlyOwner(){
+    /**
+     * @dev Crea un nuevo Match (Evento deportivo)
+     * @param _idLaurasia - Id Laurasia del match. 
+     * @param _idCompetition - Id Laursia de la competición del Match, por ejemplo 122: ChampionsLeague
+     * @param _idMatchType - Typo de Match. Debe existir en el contrato, por ejemplo: 1: Fútbol
+     * @param _startDateTimestamp - Timestamp de inicio del partido o combate con timezone GMT.
+     * @param _countryCode - Código ISO 3166-2 del país de la competencia. Si es internacional viajan INTLs 
+     */
+    function createMatch( uint256 _idLaurasia, uint128 _idCompetition, uint128 _idMatchType
+                        , uint _startDateTimestamp, string calldata _countryCode ) external onlyOwner(){
         
         require(matchTypesChecker[_idMatchType], "MT0002 MATCH TYPE DOES NOT EXIST");     
-        require(matchesLaurasia[_idLaurasia] == 0, "MH0001 MATCH WITH LARUASIA ID ALREADY EXISTS");  
+        require(!matchesLaurasiaExistence[_idLaurasia], "MH0001 MATCH WITH LARUASIA ID ALREADY EXISTS" );  
 
-        uint id = matches.push(Match(_competition, _idMatchType,_startDateTimestamp, MatchStatus.PENDING));
-        matchesChecker[id] = true;
-        matchesLaurasia[_idLaurasia] = id;
+        matches[_idLaurasia] = Match( _idCompetition
+                                    , _idMatchType
+                                    , _startDateTimestamp
+                                    , _countryCode );
+        matchesLaurasiaExistence[_idLaurasia] = true;
         matchTypes[_idMatchType].matchCounter++;
-        emit NewMatch(id, _idLaurasia, _competition);                    
+        emit NewMatch(_idLaurasia);                    
+    }
+
+    /**
+     * @dev Actualiza un nuevo Match (Evento deportivo)
+     * @param _idLaurasia - Id Laurasia del match. 
+     * @param _idCompetition - Id Laursia de la competición del Match, por ejemplo 122: ChampionsLeague
+     * @param _idMatchType - Typo de Match. Debe existir en el contrato, por ejemplo: 1: Fútbol
+     * @param _startDateTimestamp - Timestamp de inicio del partido o combate con timezone GMT.
+     * @param _countryCode - Código ISO 3166-2 del país de la competencia. Si es internacional viajan INTLs 
+     */
+    function updateMatch( uint256 _idLaurasia, uint128 _idCompetition, uint128 _idMatchType
+                        , uint _startDateTimestamp, string calldata _countryCode ) external onlyOwner(){
+        require(matchTypesChecker[_idMatchType], "MT0002 MATCH TYPE DOES NOT EXIST");     
+        require(matchesLaurasiaExistence[_idLaurasia], "MH0002 MATCH WITH LARUASIA DOES NOT EXIST" );  
+
+        //Actualizamos los contadores del tipo de Evento
+        if(_idMatchType != matches[_idLaurasia].matchType){
+            matchTypes[matches[_idLaurasia].matchType].matchCounter--;
+            matchTypes[_idMatchType].matchCounter++;
+            matches[_idLaurasia].matchType = _idMatchType;
+        }
+
+        matches[_idLaurasia].idCompetition = _idCompetition;
+        matches[_idLaurasia].startDate = _startDateTimestamp;
+        matches[_idLaurasia].country = _countryCode;
+
+        emit UpdateMatch(_idLaurasia);                                 
     }
 }
