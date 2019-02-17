@@ -4,14 +4,10 @@ import "./Ownable.sol";
 /**
  * @title Ownable
  * @dev Este contrato permite registrar eventos deportivos del tipo Versus, es decir
- * uno contra uno, es decir un equipo contra otro, o un combate. Cuando se crea un 
- * nuevo Match se genera un ID único con el cual se puede consultar la información
- * del Match y en caso que ya se sepa el resultado, el resultado del evento con 
- * MatchResult. 
+ * uno contra uno como un partido de fútbol, o un combate de Box. 
  * En este contrato sólo se almacena los ID de los eventos, compentecias, etc. Si
  * desea conocer el detalle de los competidores, competencias, etc. Su aplicaciónp
  * cliente debe invocar a los servicios de Betex Laursia para obtener la información.
- *
  */
 contract VersusMatches is Ownable{
     //Evento emitido cuando se crea un nuevo Match
