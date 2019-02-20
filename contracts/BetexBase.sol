@@ -1,7 +1,7 @@
 pragma solidity >= 0.5.0;
-import "./BetexAccessControl.sol";
+import "./BetexAdmin.sol";
 
-contract Betex is BetexAccessControl{
+contract BetexBase is BetexAdmin{
     event Print(string name, string info);
     event PlacedBet(address bettor, uint marketId, uint betId, uint odds, uint stake);
 
@@ -21,12 +21,7 @@ contract Betex is BetexAccessControl{
         BetResult result;       //Resultado final de la apuesta.  
         BetStatus betStatus;    //Estado de la apuesta 
     }
-    //Apuesta mínima
-    uint public minimumStake;
 
-    //Mercados de las apuestas
-    mapping(uint => bool) public marketsExists;  
-    
     //Guarda las apuestas con ID único  
     Bet[] public bets;         
     
@@ -49,34 +44,12 @@ contract Betex is BetexAccessControl{
         marketManagerAddress = msg.sender;
         cfoAddress  = msg.sender;
         minimumStake = 0.01 ether;
+        commission = 5; //Se cobra el 5% de comisión al ganador
         //Creamos el mercado y la apuesta génesis
         addMarket(0);
         _createBet( 0, 0, 1, BetType.BACK, 0, 0, BetResult.WINNER, BetStatus.CLOSED); 
     }
     
-    /**
-    * @dev Verifica que haya un mínimo stake
-     */
-    modifier minStake(){
-        require(msg.value >= minimumStake, "No llegó a la apuesta mínima");
-        _;
-    }
-    /**
-     * @dev Setea el monto mínimo de apuestas permitidos
-     * @param _minStake Mínimo permitido en wei
-     */
-    function setMinimunStake(uint _minStake) public onlyMarketManager(){
-        minimumStake = _minStake;
-    }
-
-    /**
-     * @dev Agrega un mercado a la base de datos
-     * @param _marketIdLaursia Id en Laurasia
-     */
-    function addMarket(uint _marketIdLaursia) public onlyMarketManager(){
-        marketsExists[_marketIdLaursia] = true;
-    }
-
     /**
      * @dev Registra una nueva apuesta para un mercado y un runner determinado
      * @param _marketId Id en Laurasia
@@ -108,7 +81,6 @@ contract Betex is BetexAccessControl{
                                    , _odd
                                    , _betType
                                    , stake
-                                   , BetResult.PENDING
                                    , _counterBetId );
         }
         else{
@@ -150,12 +122,11 @@ contract Betex is BetexAccessControl{
      * @param _odd cuota. El valor decimal se transforma a uint. Si en al app el apostador ingresa 1.41, acá llega 141
      * @param _betType tipo de apuesta
      * @param _stake El monto que apostó el jugador
-     * @param _betResult El resultado de la apuesta
      * @param _counterBetId ID de la apuesta contra la que se apuesta. Si es 0, significa que es un nuevo odd
      * @return betId - El ID de la apuesta
      */
     function _createAndMatch( uint _marketId, uint _runnerId, uint _odd, BetType _betType
-                            , uint _stake, BetResult _betResult, uint _counterBetId ) internal returns(uint){
+                            , uint _stake, uint _counterBetId ) internal returns(uint){
         //Obtenemos la contrapauesta
         Bet storage counterBet = bets[_counterBetId];
         
