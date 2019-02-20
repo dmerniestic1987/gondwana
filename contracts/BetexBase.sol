@@ -23,19 +23,19 @@ contract BetexBase is BetexAdmin{
     //Guarda las apuestas con ID único  
     Bet[] public bets;         
     
-    mapping(uint => uint[]) matchedBets;
-
-    //Permite obtener los indices de todas las puestas de una dirección en particular
-    mapping(address => uint[]) internal ownerToBetsIndex; 
-                                                         
-    //Permite determinar al  emisor de una apuesta
-    mapping(uint => address payable) internal betIndexToOwner;                                          
+    mapping(uint => uint[]) public matchedBets ;
 
     //Agrupa las apuestas por tipo de Mercado.  //Key: MarketId  //Value: Id - array índices de bets
     mapping(uint128 => uint[]) public betsByMarket; 
 
+    //Permite obtener los indices de todas las puestas de una dirección en particular
+    mapping(address => uint[]) private ownerToBetsIndex; 
+                                                         
+    //Permite determinar al  emisor de una apuesta
+    mapping(uint => address payable) private betIndexToOwner;                                          
+
     //Permite conocer cual fue el resultado de un mercado dado el ID de mercado y el runner
-    mapping(bytes32 => bool) public marketResultWinners;
+    mapping(bytes32 => bool) private marketResultWinners;
 
     constructor() public {
         owner = msg.sender;
@@ -58,25 +58,6 @@ contract BetexBase is BetexAdmin{
         require(marketsExists[_marketId], "El mercado no existe");
 
         _saveBetWinners(_marketId, _winnerRunnerId, _loosersRunnersId);
-    }
-
-    /**
-     * @dev Obtiene el resultado de una apuesta determinada
-     * @param _marketId Id del mercado Laurasia
-     * @param _winnerRunnerId Id del Runner Ganador en Laurasia
-     * @param _loosersRunnersId Id de los perdedores en Laurasia
-     */
-    function _saveBetWinners( uint128 _marketId, uint64 _winnerRunnerId
-                            , uint64[] memory _loosersRunnersId ) internal{
-        //Marcamos a los ganadores: Los que apostaron a favor de un mercado y un runner particular
-        bytes32 marketResultKey = keccak256(abi.encodePacked(_marketId, _winnerRunnerId, BetType.BACK));
-        marketResultWinners[marketResultKey] = true;
-        
-        //Marcamos a los perdedores: Los que apostaron en contra de un mercado particular
-        for (uint8 i = 0; i < _loosersRunnersId.length; i++){
-            marketResultKey = keccak256(abi.encodePacked(_marketId, _loosersRunnersId[i], BetType.LAY));
-            marketResultWinners[marketResultKey] = true;
-        }
     }
 
     /**
@@ -266,4 +247,23 @@ contract BetexBase is BetexAdmin{
         require(betId == uint256(uint64(betId)), "Hubo buffer overflow en alta de apuesta");  
         return betId;    
     }
+
+    /**
+     * @dev Obtiene el resultado de una apuesta determinada
+     * @param _marketId Id del mercado Laurasia
+     * @param _winnerRunnerId Id del Runner Ganador en Laurasia
+     * @param _loosersRunnersId Id de los perdedores en Laurasia
+     */
+    function _saveBetWinners( uint128 _marketId, uint64 _winnerRunnerId
+                            , uint64[] memory _loosersRunnersId ) internal{
+        //Marcamos a los ganadores: Los que apostaron a favor de un mercado y un runner particular
+        bytes32 marketResultKey = keccak256(abi.encodePacked(_marketId, _winnerRunnerId, BetType.BACK));
+        marketResultWinners[marketResultKey] = true;
+        
+        //Marcamos a los perdedores: Los que apostaron en contra de un mercado particular
+        for (uint8 i = 0; i < _loosersRunnersId.length; i++){
+            marketResultKey = keccak256(abi.encodePacked(_marketId, _loosersRunnersId[i], BetType.LAY));
+            marketResultWinners[marketResultKey] = true;
+        }
+    }    
 }
