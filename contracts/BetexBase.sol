@@ -5,9 +5,8 @@ contract BetexBase is BetexAdmin{
     event Print(string name, string info);
     event PlacedBet(address bettor, uint128 marketId, uint betId, uint64 odds, uint stake);
 
-    enum BetType    { BACK, LAY }                                       
-    enum BetStatus  { OPEN, FULL_MATCHED, CLOSED }   
-    enum BetResult  { WINNER, LOOSER, PENDING }
+    enum BetType        { BACK, LAY }                                       
+    enum BetStatus      { OPEN, FULL_MATCHED, CLOSED }   
 
     struct Bet{
         uint128 marketId;       //Clave del mercado. Se calcula: keccak256(marketId + Fecha Evento) 
@@ -18,7 +17,6 @@ contract BetexBase is BetexAdmin{
         uint matchedStake;      //Es la cantidad de diner que hasta el momento se pudo matchear contra otras apuestas. 
                                 //Si stake == matchedStake significa que la apuesta quedó en OPEN_MATCHED
         BetType betType;        //Tipo de apuesta. Back: A favor, Lay: En contra
-        BetResult result;       //Resultado final de la apuesta.  
         BetStatus betStatus;    //Estado de la apuesta 
     }
 
@@ -36,6 +34,9 @@ contract BetexBase is BetexAdmin{
     //Agrupa las apuestas por tipo de Mercado.  //Key: MarketId  //Value: Id - array índices de bets
     mapping(uint128 => uint[]) public betsByMarket; 
 
+    //Permite conocer cual fue el resultado de un mercado dado el ID de mercado y el runner
+    mapping(bytes32 => bool) public marketResultWinners;
+
     constructor() public {
         owner = msg.sender;
         marketManagerAddress = msg.sender;
@@ -44,9 +45,51 @@ contract BetexBase is BetexAdmin{
         commission = 5; //Se cobra el 5% de comisión al ganador
         //Creamos el mercado y la apuesta génesis
         addMarket(0);
-        _createBet( 0, 0, 1, BetType.BACK, 0, 0, BetResult.WINNER, BetStatus.CLOSED); 
+        _createBet( 0, 0, 1, BetType.BACK, 0, 0, BetStatus.CLOSED); 
     }
-    
+
+    function resolveMarket( uint128 _marketId, uint64 _winnerRunnerId
+                          , uint64[] memory _loosersRunnersId ) public onlyMarketManager(){
+        
+        require( _loosersRunnersId.length > 0 && _loosersRunnersId.length <= 50
+               , "Tienen que haber al menos 1 Runner y menos de 50");
+        
+        //El mercado tiene que existir
+        require(marketsExists[_marketId], "El mercado no existe");
+
+        _saveBetWinners(_marketId, _winnerRunnerId, _loosersRunnersId);
+    }
+
+    /**
+     * @dev Obtiene el resultado de una apuesta determinada
+     * @param _marketId Id del mercado Laurasia
+     * @param _winnerRunnerId Id del Runner Ganador en Laurasia
+     * @param _loosersRunnersId Id de los perdedores en Laurasia
+     */
+    function _saveBetWinners( uint128 _marketId, uint64 _winnerRunnerId
+                            , uint64[] memory _loosersRunnersId ) internal{
+        //Marcamos a los ganadores: Los que apostaron a favor de un mercado y un runner particular
+        bytes32 marketResultKey = keccak256(abi.encodePacked(_marketId, _winnerRunnerId, BetType.BACK));
+        marketResultWinners[marketResultKey] = true;
+        
+        //Marcamos a los perdedores: Los que apostaron en contra de un mercado particular
+        for (uint8 i = 0; i < _loosersRunnersId.length; i++){
+            marketResultKey = keccak256(abi.encodePacked(_marketId, _loosersRunnersId[i], BetType.LAY));
+            marketResultWinners[marketResultKey] = true;
+        }
+    }
+
+    /**
+     * Determina si ganó alguna de las apuestas
+     */
+    function isBetWinner(uint betId) public view returns(bool){
+        require(betId < bets.length, "El ID ingresado no existe");
+        require(betIndexToOwner[betId] == msg.sender, "Usted no apostó");
+        Bet memory bet = bets[betId];
+        bytes32 marketResultKey = keccak256(abi.encodePacked(bet.marketId, bet.runnerId, bet.betType));
+        return marketResultWinners[marketResultKey];
+    }
+
     /**
      * @dev Registra una nueva apuesta para un mercado y un runner determinado
      * @param _marketId Id en Laurasia
@@ -87,7 +130,6 @@ contract BetexBase is BetexAdmin{
                               , _betType
                               , stake
                               , 0
-                              , BetResult.PENDING
                               , BetStatus.OPEN );
         }
         
@@ -142,7 +184,6 @@ contract BetexBase is BetexAdmin{
                               , _betType
                               , _stake, 
                               0
-                              , BetResult.PENDING
                               , BetStatus.OPEN );
         }
         else{
@@ -159,7 +200,6 @@ contract BetexBase is BetexAdmin{
                                   , _betType
                                   , _stake
                                   , _stake
-                                  , BetResult.PENDING
                                   , BetStatus.FULL_MATCHED);
             }
 
@@ -175,7 +215,6 @@ contract BetexBase is BetexAdmin{
                                   , _betType
                                   , _stake
                                   , availableCounterStake
-                                  , BetResult.PENDING
                                   , BetStatus.OPEN );           
             }
             //Caso 3. El stake de la apuesta es inferior al disponible en la contraapuesta. Se debe
@@ -189,7 +228,6 @@ contract BetexBase is BetexAdmin{
                                   , _betType
                                   , _stake
                                   , _stake
-                                  , BetResult.PENDING
                                   , BetStatus.FULL_MATCHED );
             }
 
@@ -209,13 +247,12 @@ contract BetexBase is BetexAdmin{
      * @param _betType tipo de apuesta
      * @param _stake El monto apostado por el jugador
      * @param _matchedStake El monto que se matcheo hasta el momento
-     * @param _betResult El resultado de la apuesta
      * @param _betStatus El estado de la apuesta
      * @return betId - El ID de la apuesta
      */
     function _createBet( uint128 _marketId, uint64 _runnerId, uint64 _odd
                        , BetType _betType, uint _stake, uint _matchedStake
-                       , BetResult _betResult, BetStatus _betStatus) internal returns(uint){
+                       , BetStatus _betStatus) internal returns(uint){
         //Creamos el el Bet y le asignamos un id Único
         uint betId = bets.push( Bet( _marketId
                                    , _runnerId
@@ -223,7 +260,6 @@ contract BetexBase is BetexAdmin{
                                    , _stake
                                    , _matchedStake
                                    , _betType
-                                   , _betResult
                                    , _betStatus ) ) - 1;
 
         //Verificamos que no haya más de 2^128 apuestas
