@@ -6,10 +6,10 @@ contract BetexAdmin is BetexAccessControl{
     uint public minimumStake;
     
     //Comisión que se le cobra al ganador de la apuesta
-    uint public commission;
+    uint8 public commission;
     
     //Mercados de las apuestas
-    mapping(uint => bool) public marketsExists;  
+    mapping(uint128 => bool) public marketsExists;  
 
     /**
     * @dev Verifica que haya un mínimo stake
@@ -20,11 +20,11 @@ contract BetexAdmin is BetexAccessControl{
     }
 
     /**
-     * @dev Setea el monto mínimo de apuestas permitidos
+     * @dev Setea el monto mínimo de apuestas permitidos. Si la comisión es del 
      * @param _commission Es la comisión que le cobra al ganador de una apuesta
      */
-    function setCommission(uint _commission) public onlyCFO(){
-        require(_commission > 0 && _commission <= 100, "Porcentaje incorrecto" );
+    function setCommission(uint8 _commission) public onlyCFO(){
+        require(_commission > 0 && _commission <= 100, "Porcentaje incorrecto");
         commission = _commission;
     }
 
@@ -40,7 +40,7 @@ contract BetexAdmin is BetexAccessControl{
      * @dev Agrega un mercado a la base de datos
      * @param _marketIdLaursia Id en Laurasia
      */
-    function addMarket(uint _marketIdLaursia) public onlyMarketManager(){
+    function addMarket(uint128 _marketIdLaursia) public onlyMarketManager(){
         marketsExists[_marketIdLaursia] = true;
     }    
 }    

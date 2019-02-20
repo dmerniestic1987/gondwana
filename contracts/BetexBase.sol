@@ -3,16 +3,16 @@ import "./BetexAdmin.sol";
 
 contract BetexBase is BetexAdmin{
     event Print(string name, string info);
-    event PlacedBet(address bettor, uint marketId, uint betId, uint odds, uint stake);
+    event PlacedBet(address bettor, uint128 marketId, uint betId, uint64 odds, uint stake);
 
     enum BetType    { BACK, LAY }                                       
     enum BetStatus  { OPEN, FULL_MATCHED, CLOSED }   
     enum BetResult  { WINNER, LOOSER, PENDING }
 
     struct Bet{
-        uint marketId;          //Clave del mercado. Se calcula: keccak256(marketId + Fecha Evento) 
-        uint runnerId;          //Runner por el que se apuesta        
-        uint odd;               //Es la cuota. El sistema sólo permite 2 decimal,
+        uint128 marketId;       //Clave del mercado. Se calcula: keccak256(marketId + Fecha Evento) 
+        uint64  runnerId;       //Runner por el que se apuesta        
+        uint64  odd;            //Es la cuota. El sistema sólo permite 2 decimal,
                                 //como entereo. Por ejemplo 2,73 se guarda como 273. 
         uint stake;             //Es el monto apostado en WEI. Debe coincidir con msg.sender en la creación        
         uint matchedStake;      //Es la cantidad de diner que hasta el momento se pudo matchear contra otras apuestas. 
@@ -34,10 +34,7 @@ contract BetexBase is BetexAdmin{
     mapping(uint => address payable) internal betIndexToOwner;                                          
 
     //Agrupa las apuestas por tipo de Mercado.  //Key: MarketId  //Value: Id - array índices de bets
-    mapping(uint => uint[]) public betsByMarket; 
-
-    //Permite registrar la cantidad de dinero apostada por tipo de mercado                                  
-    mapping(uint => uint) totalStakeByMarket;
+    mapping(uint128 => uint[]) public betsByMarket; 
 
     constructor() public {
         owner = msg.sender;
@@ -58,7 +55,7 @@ contract BetexBase is BetexAdmin{
      * @param _betType tipo de apuesta
      * @param _counterBetId ID de la apuesta contra la que se apuesta. Si es 0, significa que es un nuevo odd
      */
-    function placeBet( uint _marketId, uint _runnerId, uint _odd
+    function placeBet( uint128 _marketId, uint64 _runnerId, uint64 _odd
                      , BetType _betType, uint _counterBetId) external payable minStake(){
         //El mercado tiene que existir
         require(marketsExists[_marketId], "El mercado no existe");
@@ -102,8 +99,9 @@ contract BetexBase is BetexAdmin{
 
         //Agregamos la apuesta a la base de Mercados
         betsByMarket[_marketId].push(betId);  
-        //Incrementamos el stake acumulado por marcado
-        totalStakeByMarket[_marketId] = totalStakeByMarket[_marketId] + stake;
+        
+        //Emitimos la orden
+        emit PlacedBet(msg.sender, _marketId, betId, _odd, stake);
     }
 
     /**
@@ -125,7 +123,7 @@ contract BetexBase is BetexAdmin{
      * @param _counterBetId ID de la apuesta contra la que se apuesta. Si es 0, significa que es un nuevo odd
      * @return betId - El ID de la apuesta
      */
-    function _createAndMatch( uint _marketId, uint _runnerId, uint _odd, BetType _betType
+    function _createAndMatch( uint128 _marketId, uint64 _runnerId, uint64 _odd, BetType _betType
                             , uint _stake, uint _counterBetId ) internal returns(uint){
         //Obtenemos la contrapauesta
         Bet storage counterBet = bets[_counterBetId];
@@ -153,7 +151,6 @@ contract BetexBase is BetexAdmin{
             //Caso 1: Las apuestas matchean completamente porque el stake es el mismo. Ambas se deben cerrar,
             //acutalizar el matchedStake y agregar el ID a la lista de matchedBets
             if (_stake == availableCounterStake){
-                emit Print("caso1", "Sumo los stakes");
                 counterBet.matchedStake += _stake;
                 counterBet.betStatus = BetStatus.FULL_MATCHED;
                 betId = _createBet( _marketId
@@ -170,7 +167,6 @@ contract BetexBase is BetexAdmin{
             //acualizar el matchedStake y agrgear el ID a la lista de machtedBets de ambas
             //apuestas, pero sólo se debe cerrar la contraApuesta
             else if (_stake > availableCounterStake){
-                emit Print("caso 2", "availableCounterStake");
                 counterBet.betStatus = BetStatus.FULL_MATCHED;
                 counterBet.matchedStake += availableCounterStake;
                 betId = _createBet( _marketId
@@ -186,7 +182,6 @@ contract BetexBase is BetexAdmin{
             //actualizar el matchedStake de ambos y agregar el ID a la lista de de matched de ambas
             //apuestas, pero sólo se debe cerrar la apuesta.
             else {
-                emit Print("caso 3", "_stake");
                 counterBet.matchedStake += _stake;
                 betId = _createBet( _marketId
                                   , _runnerId
@@ -218,7 +213,7 @@ contract BetexBase is BetexAdmin{
      * @param _betStatus El estado de la apuesta
      * @return betId - El ID de la apuesta
      */
-    function _createBet( uint _marketId, uint _runnerId, uint _odd
+    function _createBet( uint128 _marketId, uint64 _runnerId, uint64 _odd
                        , BetType _betType, uint _stake, uint _matchedStake
                        , BetResult _betResult, BetStatus _betStatus) internal returns(uint){
         //Creamos el el Bet y le asignamos un id Único
@@ -231,8 +226,8 @@ contract BetexBase is BetexAdmin{
                                    , _betResult
                                    , _betStatus ) ) - 1;
 
-        //Verificamos que no haya bufferOverflow
-        require(betId == uint256(uint32(betId)), "Hubo buffer overflow en alta de apuesta");  
+        //Verificamos que no haya más de 2^128 apuestas
+        require(betId == uint256(uint64(betId)), "Hubo buffer overflow en alta de apuesta");  
         return betId;    
     }
 }
