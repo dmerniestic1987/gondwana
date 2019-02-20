@@ -9,8 +9,8 @@ contract BetexBase is BetexAdmin{
     enum BetStatus      { OPEN, FULL_MATCHED, CLOSED }   
 
     struct Bet{
-        uint128 marketId;       //Clave del mercado. Se calcula: keccak256(marketId + Fecha Evento) 
-        uint64  runnerId;       //Runner por el que se apuesta        
+        uint128 marketId;       //Clave del mercado. ID Laurasia
+        uint64  runnerId;       //Runner por el que se apuesta. ID Laurasia     
         uint64  odd;            //Es la cuota. El sistema sólo permite 2 decimal,
                                 //como entereo. Por ejemplo 2,73 se guarda como 273. 
         uint stake;             //Es el monto apostado en WEI. Debe coincidir con msg.sender en la creación        
@@ -37,12 +37,16 @@ contract BetexBase is BetexAdmin{
     //Permite conocer cual fue el resultado de un mercado dado el ID de mercado y el runner
     mapping(bytes32 => bool) private marketResultWinners;
 
+    //Permite resolver las apuestas de una manera más eficiente
+    mapping(bytes32 => uint[]) private placedBets;
+
     constructor() public {
         owner = msg.sender;
         marketManagerAddress = msg.sender;
         cfoAddress  = msg.sender;
         minimumStake = 0.01 ether;
         commission = 5; //Se cobra el 5% de comisión al ganador
+        gain = 0;
         //Creamos el mercado y la apuesta génesis
         addMarket(0);
         _createBet( 0, 0, 1, BetType.BACK, 0, 0, BetStatus.CLOSED); 
@@ -57,6 +61,25 @@ contract BetexBase is BetexAdmin{
         //El mercado tiene que existir
         require(marketsExists[_marketId], "El mercado no existe");
 
+        emit Print("resolve 1", "Resolvemos los BACK");
+        bytes32 placedBetKey = _keyResolver(_marketId, _winnerRunnerId, BetType.BACK );
+        uint[] memory winnerLayBets = placedBets[placedBetKey];
+        
+        for (uint i; i < winnerLayBets.length; i++){
+            uint winnerBetId = winnerLayBets[i];
+            Bet storage bet = bets[winnerBetId];
+
+            if (bet.betStatus == BetStatus.FULL_MATCHED){
+                bet.betStatus = BetStatus.CLOSED;
+                address payable bettor = betIndexToOwner[winnerBetId];
+                uint total = (bet.odd * bet.stake) / 100;
+                uint commissionsDiscoint = (total * commission) / 100;
+                gain += commissionsDiscoint;
+                bettor.transfer(total - commissionsDiscoint);
+            }
+        }
+
+        //Marcamos a los ganadores
         _saveBetWinners(_marketId, _winnerRunnerId, _loosersRunnersId);
     }
 
@@ -67,7 +90,7 @@ contract BetexBase is BetexAdmin{
         require(betId < bets.length, "El ID ingresado no existe");
         require(betIndexToOwner[betId] == msg.sender, "Usted no apostó");
         Bet memory bet = bets[betId];
-        bytes32 marketResultKey = keccak256(abi.encodePacked(bet.marketId, bet.runnerId, bet.betType));
+        bytes32 marketResultKey = _keyResolver(bet.marketId, bet.runnerId, bet.betType );
         return marketResultWinners[marketResultKey];
     }
 
@@ -123,6 +146,10 @@ contract BetexBase is BetexAdmin{
         //Agregamos la apuesta a la base de Mercados
         betsByMarket[_marketId].push(betId);  
         
+        //Agregamos agregamos la lista de apuestas hechas
+        bytes32 placedBetKey = _keyResolver(_marketId, _runnerId, _betType );
+        placedBets[placedBetKey].push(betId);
+
         //Emitimos la orden
         emit PlacedBet(msg.sender, _marketId, betId, _odd, stake);
     }
@@ -248,6 +275,10 @@ contract BetexBase is BetexAdmin{
         return betId;    
     }
 
+    function _keyResolver(uint128 _marketId, uint64 runnerId, BetType betType ) internal pure returns (bytes32) {
+        bytes32 marketResultKey = keccak256(abi.encodePacked(_marketId, runnerId, betType));
+        return marketResultKey;    
+    }
     /**
      * @dev Obtiene el resultado de una apuesta determinada
      * @param _marketId Id del mercado Laurasia
@@ -257,12 +288,12 @@ contract BetexBase is BetexAdmin{
     function _saveBetWinners( uint128 _marketId, uint64 _winnerRunnerId
                             , uint64[] memory _loosersRunnersId ) internal{
         //Marcamos a los ganadores: Los que apostaron a favor de un mercado y un runner particular
-        bytes32 marketResultKey = keccak256(abi.encodePacked(_marketId, _winnerRunnerId, BetType.BACK));
+        bytes32 marketResultKey = _keyResolver(_marketId, _winnerRunnerId, BetType.BACK);
         marketResultWinners[marketResultKey] = true;
         
         //Marcamos a los perdedores: Los que apostaron en contra de un mercado particular
         for (uint8 i = 0; i < _loosersRunnersId.length; i++){
-            marketResultKey = keccak256(abi.encodePacked(_marketId, _loosersRunnersId[i], BetType.LAY));
+            marketResultKey = _keyResolver(_marketId, _loosersRunnersId[i], BetType.LAY);
             marketResultWinners[marketResultKey] = true;
         }
     }    
