@@ -14,34 +14,124 @@ contract BetexCore is BetexBase{
         addMarket(0);
         _createBet(0, 0, 1, BetType.BACK, 0, 0, BetStatus.CLOSED); 
     }
-
-    function resolveMarket( uint128 _marketId, uint64 _winnerRunnerId
-                          , uint64[] memory _loosersRunnersId ) public onlyMarketManager(){
-        
-        require( _loosersRunnersId.length > 0 && _loosersRunnersId.length <= 50
-               , "Tienen que haber al menos 1 Runner y menos de 50");
-        
+    /**
+     * @dev Resuelve las apuestas del tipo BACK
+     * @param _marketId Id del mercado en Laurasia
+     * @param _winnerRunnerId Id del runner ganador del mercado
+     */
+    function resolveBackMarkes( uint128 _marketId, uint64 _winnerRunnerId ) public onlyMarketManager(){
         //El mercado tiene que existir
         require(marketsExists[_marketId], "El mercado no existe");
 
-        emit Print("resolve 1", "Resolvemos los BACK");
+        //TIENEN QUE HABER SUFICIENTES FONDOS EN EL CONTRATO PARA PAGAR EL MERCADO
+        //Obtenemos todos los que apostaron a favor del runner Ganador y les pagamos
         bytes32 placedBetKey = _keyResolver(_marketId, _winnerRunnerId, BetType.BACK );
         uint[] memory winnerBackBets = placedBets[placedBetKey];
-        marketResultWinners[placedBetKey] = true;
-
+        
         for (uint i; i < winnerBackBets.length; i++){
             uint winnerBetId = winnerBackBets[i];
             Bet storage bet = bets[winnerBetId];
-
-            if (bet.betStatus == BetStatus.FULL_MATCHED){
-                bet.betStatus = BetStatus.CLOSED;
-                address payable bettor = betIndexToOwner[winnerBetId];
-                uint total = (bet.odd * bet.stake) / 100;
-                uint betexGain = (total * commission) / 100;
+            address payable bettor = betIndexToOwner[winnerBetId];
+            uint payout = 0;
+            uint betexGain = 0;
+            //Cerramos las apuestas que matchearon completamente.
+            //Se paga completamente stake * odd.
+            if (bet.betStatus == BetStatus.FULL_MATCHED){  
+                emit Print("resolveBacK 1", "Full Matched");
+                payout = (bet.odd * bet.stake) / 100;              
+                betexGain = (payout * commission) / 100;
                 gain += betexGain;
-                bettor.transfer(total - betexGain);
             }
+            //Las apuestas fueron parcialmente matcheadas. En este caso
+            //devolvemos el total matcheado más el total que no matcheó.
+            else if (bet.betStatus == BetStatus.PARTIALLY_MATCHED){
+                emit Print("resolveBacK 2", "PARTIALLY Matched");
+                uint totalMatched = bet.matchedStake * bet.odd / 100;
+                betexGain = (totalMatched * commission) / 100;
+                gain += betexGain;
+                payout = bet.stake + totalMatched;
+
+            }
+            //Las apuestas no matchearon. Se le debe devolver el dinero 
+            //de la apuesta si comisión
+            else if (bet.betStatus == BetStatus.OPEN) {
+                payout = bet.stake;
+                emit Print("resolveBacK 3", "OPEN");
+            }
+
+            bettor.transfer(payout - betexGain);
+            bet.betStatus = BetStatus.CLOSED;
         }
+
+        marketResultWinners[placedBetKey] = true;                              
+    }
+
+    /**
+     * @dev Obtiene la lista de de las apuestas en contra
+     * @param _marketId ID del mercado
+     * @param _runnerId ID del runner en el mercado
+     * @param _betType Tipo de apuesta
+     */
+    function getPlacedBets(uint128 _marketId, uint64 _runnerId, BetType _betType ) 
+            public view returns (uint[] memory ){
+        bytes32 placedBetKey = _keyResolver(_marketId, _runnerId, _betType );
+        return placedBets[placedBetKey];
+    }
+
+    /**
+     * @dev Resuelve las apuestas del tipo BACK
+     * @param _marketId Id del mercado en Laurasia
+     * @param _looserRunnerId Id del runner perdedor del mercado
+     */
+    function resolveLayMarket( uint128 _marketId, uint64 _looserRunnerId ) 
+        public onlyMarketManager(){
+        //El mercado tiene que existir
+        require(marketsExists[_marketId], "El mercado no existe");
+        emit Print("resolve 2", "Resolvemos los LAY");
+        //Obtenemos la lista de los competidors que perdieron, y por cada
+        //uno de ellos, traemos las apuestas para resolverlas
+        bytes32 placedBetKey = _keyResolver(_marketId, _looserRunnerId, BetType.LAY );
+        uint[] memory winnerLayBets = placedBets[placedBetKey];
+
+        // Obtenemos todas las apuestas ganadoras en contra y las liquidamos 
+        for (uint i; i < winnerLayBets.length; i++){
+            uint winnerBetId = winnerLayBets[i];
+            Bet storage bet = bets[winnerBetId];
+            address payable bettor = betIndexToOwner[winnerBetId];
+            uint payout = 0;
+            uint betexGain = 0; 
+
+            //Cerramos las apuestas que matchearon completamente.
+            //Se paga completamente stake * odd.
+            if (bet.betStatus == BetStatus.FULL_MATCHED){  
+                payout = (bet.odd * bet.stake) / 100;              
+                betexGain = (payout * commission) / 100;
+                gain += betexGain;
+                emit Print("resolveLayMarket", "mercado full match");
+            }
+            //Las apuestas fueron parcialmente matcheadas. En este caso
+            //devolvemos el total matcheado más el total que no matcheó.
+            else if (bet.betStatus == BetStatus.PARTIALLY_MATCHED){
+                uint totalMatched = bet.matchedStake * bet.odd / 100;
+                betexGain = (totalMatched * commission) / 100;
+                gain += betexGain;
+
+                uint availableLiability = (bet.odd - 100) * (bet.stake - bet.matchedStake) / 100;
+                payout = totalMatched + availableLiability;
+                emit Print("resolveLayMarket", "mercado partially");
+
+            }
+            //Las apuestas no matchearon. Se le debe devolver el dinero 
+            //de la apuesta si comisión.
+            else if (bet.betStatus == BetStatus.OPEN) {
+                payout = (bet.odd - 100) * bet.stake / 100;
+                 emit Print("resolveLayMarket", " mercado clossed");
+            }
+
+            bettor.transfer(payout - betexGain);
+            bet.betStatus = BetStatus.CLOSED;                
+        }
+        marketResultWinners[placedBetKey] = true;
     }
 
     /**

@@ -21,6 +21,13 @@ contract BetexAdmin is BetexAccessControl{
         require(msg.value >= minimumStake, "No llegó a la apuesta mínima");
         _;
     }
+    
+    /**
+     * @dev Obtiene el balance en Ether acumulado en el contrato
+     */
+    function getBalance() public view  onlyCFO() returns (uint){
+        return address(this).balance;
+    }
 
     /**
      * @dev Obtiene las ganancias acumuladas  hasta el momento
