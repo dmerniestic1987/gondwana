@@ -11,9 +11,8 @@ contract BetexBase is BetexAdmin{
     struct Bet{
         uint128 marketId;       //Clave del mercado. ID Laurasia
         uint64  runnerId;       //Runner por el que se apuesta. ID Laurasia     
-        uint64  odd;            //Es la cuota. El sistema sólo permite 2 decimal,
-                                //como entereo. Por ejemplo 2,73 se guarda como 273. 
-        uint stake;             //Es el monto apostado en WEI. Debe coincidir con msg.sender en la creación        
+        uint64  odd;            //Es la cuota. El sistema sólo permite 2 decimal. Si es 2,73, guardo como 273. 
+        uint stake;             //Es el monto apostado en WEI. Para BACK debe coincidir con msg.value      
         uint matchedStake;      //Es la cantidad de diner que hasta el momento se pudo matchear contra otras apuestas. 
                                 //Si stake == matchedStake significa que la apuesta quedó en OPEN_MATCHED
         BetType betType;        //Tipo de apuesta. Back: A favor, Lay: En contra
@@ -28,70 +27,27 @@ contract BetexBase is BetexAdmin{
     //Agrupa las apuestas por tipo de Mercado.  //Key: MarketId  //Value: Id - array índices de bets
     mapping(uint128 => uint[]) public betsByMarket; 
 
+    //Agrupa las apuestas por tipo de Mercado.  //Key: MarketId  //Value: Id - array índices de bets
+    mapping(uint128 => uint) public amountCollectedByMarket; 
+
     //Permite obtener los indices de todas las puestas de una dirección en particular
-    mapping(address => uint[]) private ownerToBetsIndex; 
+    mapping(address => uint[]) internal ownerToBetsIndex; 
                                                          
     //Permite determinar al  emisor de una apuesta
-    mapping(uint => address payable) private betIndexToOwner;                                          
+    mapping(uint => address payable) internal betIndexToOwner;                                          
 
     //Permite conocer cual fue el resultado de un mercado dado el ID de mercado y el runner
-    mapping(bytes32 => bool) private marketResultWinners;
+    mapping(bytes32 => bool) internal marketResultWinners;
 
     //Permite resolver las apuestas de una manera más eficiente
-    mapping(bytes32 => uint[]) private placedBets;
-
-    constructor() public {
-        owner = msg.sender;
-        marketManagerAddress = msg.sender;
-        cfoAddress  = msg.sender;
-        minimumStake = 0.01 ether;
-        commission = 5; //Se cobra el 5% de comisión al ganador
-        gain = 0;
-        //Creamos el mercado y la apuesta génesis
-        addMarket(0);
-        _createBet( 0, 0, 1, BetType.BACK, 0, 0, BetStatus.CLOSED); 
-    }
-
-    function resolveMarket( uint128 _marketId, uint64 _winnerRunnerId
-                          , uint64[] memory _loosersRunnersId ) public onlyMarketManager(){
-        
-        require( _loosersRunnersId.length > 0 && _loosersRunnersId.length <= 50
-               , "Tienen que haber al menos 1 Runner y menos de 50");
-        
-        //El mercado tiene que existir
-        require(marketsExists[_marketId], "El mercado no existe");
-
-        emit Print("resolve 1", "Resolvemos los BACK");
-        bytes32 placedBetKey = _keyResolver(_marketId, _winnerRunnerId, BetType.BACK );
-        uint[] memory winnerLayBets = placedBets[placedBetKey];
-        
-        for (uint i; i < winnerLayBets.length; i++){
-            uint winnerBetId = winnerLayBets[i];
-            Bet storage bet = bets[winnerBetId];
-
-            if (bet.betStatus == BetStatus.FULL_MATCHED){
-                bet.betStatus = BetStatus.CLOSED;
-                address payable bettor = betIndexToOwner[winnerBetId];
-                uint total = (bet.odd * bet.stake) / 100;
-                uint commissionsDiscoint = (total * commission) / 100;
-                gain += commissionsDiscoint;
-                bettor.transfer(total - commissionsDiscoint);
-            }
-        }
-
-        //Marcamos a los ganadores
-        _saveBetWinners(_marketId, _winnerRunnerId, _loosersRunnersId);
-    }
+    mapping(bytes32 => uint[]) internal placedBets;
 
     /**
-     * Determina si ganó alguna de las apuestas
+     * @dev Verifica que se cumpla con el mínimo ODD
      */
-    function isBetWinner(uint betId) public view returns(bool){
-        require(betId < bets.length, "El ID ingresado no existe");
-        require(betIndexToOwner[betId] == msg.sender, "Usted no apostó");
-        Bet memory bet = bets[betId];
-        bytes32 marketResultKey = _keyResolver(bet.marketId, bet.runnerId, bet.betType );
-        return marketResultWinners[marketResultKey];
+    modifier minOdd(uint64 _odd){
+        require(_odd > 100, "La cuota debe ser mayor a 100");
+        _;
     }
 
     /**
@@ -99,19 +55,17 @@ contract BetexBase is BetexAdmin{
      * @param _marketId Id en Laurasia
      * @param _runnerId Runner en Laurasia
      * @param _odd cuota. El valor decimal se transforma a uint. Si en al app el apostador ingresa 1.41, acá llega 141
+     * @param _stake Es el monto que se pone en una apuesta
      * @param _betType tipo de apuesta
      * @param _counterBetId ID de la apuesta contra la que se apuesta. Si es 0, significa que es un nuevo odd
      */
-    function placeBet( uint128 _marketId, uint64 _runnerId, uint64 _odd
-                     , BetType _betType, uint _counterBetId) external payable minStake(){
+    function _placeBet( uint128 _marketId, uint64 _runnerId, uint64 _odd, uint _stake
+                     , BetType _betType, uint _counterBetId) internal{
         //El mercado tiene que existir
         require(marketsExists[_marketId], "El mercado no existe");
         
         //El ID no puede ser mayor a la cantiddad de total de elementos
         require(_counterBetId < bets.length, "El ID de la contraapuesta no existe");
-
-        //Obtenemos la cantidad de dinero apostada.
-        uint stake = msg.value;
 
         //Creamos el el Bet y le asignamos un id Único
         uint betId = 0;
@@ -124,7 +78,7 @@ contract BetexBase is BetexAdmin{
                                    , _runnerId
                                    , _odd
                                    , _betType
-                                   , stake
+                                   , _stake
                                    , _counterBetId );
         }
         else{
@@ -132,7 +86,7 @@ contract BetexBase is BetexAdmin{
                               , _runnerId
                               , _odd
                               , _betType
-                              , stake
+                              , _stake
                               , 0
                               , BetStatus.OPEN );
         }
@@ -151,17 +105,8 @@ contract BetexBase is BetexAdmin{
         placedBets[placedBetKey].push(betId);
 
         //Emitimos la orden
-        emit PlacedBet(msg.sender, _marketId, betId, _odd, stake);
+        emit PlacedBet(msg.sender, _marketId, betId, _odd, _stake);
     }
-
-    /**
-     * @dev Obtiene la lista de las apuestas matcheadas
-     * @param _betId es el ID de la apuesta que se quiere consultar
-     */
-    function getMatchedBets(uint _betId) public view returns(uint[] memory){
-        require(_betId < bets.length, "El id no existe");
-        return matchedBets[_betId];
-    }    
 
     /**
      * @dev Crea y matchea una apuesta con una contraapuesta

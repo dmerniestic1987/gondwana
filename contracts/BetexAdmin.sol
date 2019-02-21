@@ -8,20 +8,24 @@ contract BetexAdmin is BetexAccessControl{
     //Comisión que se le cobra al ganador de la apuesta
     uint8 public commission;
 
-    //Las ganacias acuuladas
+    //Ganancias totales acumuladas
     uint internal gain;
     
     //Mercados de las apuestas
-    mapping(uint128 => bool) public marketsExists;  
+    mapping(uint128 => bool) internal marketsExists;  
 
     /**
-    * @dev Verifica que haya un mínimo stake
+     * @dev Verifica que haya un mínimo stake
      */
     modifier minStake(){
         require(msg.value >= minimumStake, "No llegó a la apuesta mínima");
         _;
     }
 
+    /**
+     * @dev Obtiene las ganancias acumuladas  hasta el momento
+     * @return gain - Ganancias acumuladas hasta el momento
+     */
     function getGains() public view onlyCFO() returns (uint)  {
         return gain;
     }
