@@ -39,7 +39,7 @@ contract BetexCore is BetexBase{
      */
     function getPlacedBets(uint128 _marketId, uint64 _runnerId, BetType _betType ) 
             public view returns (uint[] memory ){
-        bytes32 placedBetKey = _keyResolver(_marketId, _runnerId, _betType );
+        bytes32 placedBetKey = _keyResolver(_marketId, _runnerId, _betType);
         return placedBets[placedBetKey];
     }
 

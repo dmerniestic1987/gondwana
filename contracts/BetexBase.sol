@@ -22,13 +22,14 @@
         //Guarda las apuestas con ID único  
         Bet[] public bets;         
         
+        //Permite guardar los ID con lo que se matchearon las apuestas
         mapping(uint => uint[]) public matchedBets ;
 
         //Agrupa las apuestas por tipo de Mercado.  //Key: MarketId  //Value: Id - array índices de bets
         mapping(uint128 => uint[]) public betsByMarket; 
 
         //Agrupa las apuestas por tipo de Mercado.  //Key: MarketId  //Value: Id - array índices de bets
-        mapping(uint128 => uint) public amountCollectedByMarket; 
+        mapping(uint128 => uint) public balanceByMarket; 
 
         //Permite obtener los indices de todas las puestas de una dirección en particular
         mapping(address => uint[]) internal ownerToBetsIndex; 
@@ -41,7 +42,7 @@
 
         //Permite resolver las apuestas de una manera más eficiente
         mapping(bytes32 => uint[]) internal placedBets;
-
+        
         /**
         * @dev Verifica que se cumpla con el mínimo ODD
         */
@@ -181,15 +182,27 @@
             if (_counterBetId > 0){
                 require(bets[_counterBetId].betType != _betType, "Las apuestas son del mismo tipo");
                 require(bets[_counterBetId].odd == _odd, "No coinciden las cuotas");
-                require(bets[_counterBetId].betStatus == BetStatus.OPEN || bets[_counterBetId].betStatus == BetStatus.PARTIALLY_MATCHED
-                , "La otra apuesta no está abierta");
+                require(bets[_counterBetId].betStatus != BetStatus.CLOSED, "La apueta está cerrada");
                 
-                betId = _createAndMatch( _marketId
-                                    , _runnerId
-                                    , _odd
-                                    , _betType
-                                    , _stake
-                                    , _counterBetId );
+                if(bets[_counterBetId].betStatus == BetStatus.FULL_MATCHED){
+                    betId = _createBet( _marketId
+                                      , _runnerId
+                                      , _odd
+                                      , _betType
+                                      , _stake 
+                                      , 0
+                                      , BetStatus.OPEN );
+                }
+                
+                if( bets[_counterBetId].betStatus == BetStatus.PARTIALLY_MATCHED || 
+                    bets[_counterBetId].betStatus == BetStatus.OPEN ){
+                    betId = _createAndMatch( _marketId
+                                            , _runnerId
+                                            , _odd
+                                            , _betType
+                                            , _stake
+                                            , _counterBetId );
+                }
             }
             else{
                 betId = _createBet( _marketId
@@ -213,6 +226,9 @@
             //Agregamos agregamos la lista de apuestas hechas
             bytes32 placedBetKey = _keyResolver(_marketId, _runnerId, _betType );
             placedBets[placedBetKey].push(betId);
+
+            //Contabilizamos el dinero que ingresó por la apuesta
+            balanceByMarket[_marketId] += msg.value;
 
             //Emitimos la orden
             emit PlacedBet(msg.sender, _marketId, betId, _odd, _stake);
@@ -333,10 +349,24 @@
 
         /**
         * @dev Crea una clave para guardar los tipos de apuestas
-
         */
         function _keyResolver(uint128 _marketId, uint64 runnerId, BetType betType ) internal pure returns (bytes32) {
             bytes32 marketResultKey = keccak256(abi.encodePacked(_marketId, runnerId, betType));
             return marketResultKey;    
+        }  
+
+        /**
+        * @dev Crea una clave para guardar los tipos de apuestas
+        * @param _marketId El id del mercado
+        * @param _runnerId El id del apostador
+        * @param _odd La cuota de apuesta
+         *@param _betType El tipo de puesta
+        */
+        function _keyOdds( uint128 _marketId
+                         , uint64 _runnerId
+                         , uint64 _odd
+                         , BetType _betType ) internal pure returns (bytes32) {
+
+            return keccak256(abi.encodePacked(_marketId, _runnerId, _odd, _betType));
         }  
     }
