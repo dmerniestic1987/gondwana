@@ -1,6 +1,11 @@
 pragma solidity >= 0.5.0;
 import "./BetexAccessControl.sol";
 
+/**
+ * @title BetexAdmin
+ * @dev Este contrato permite restringir los accesos a roles a funcionalidades
+ *      del contrato a roles específicos
+ */
 contract BetexAdmin is BetexAccessControl{
     //Apuesta mínima
     uint public minimumStake;
@@ -11,8 +16,16 @@ contract BetexAdmin is BetexAccessControl{
     //Ganancias totales acumuladas
     uint internal gain;
     
+    //Estados de los mercados
+    enum MarketStatus { ACTIVE, SUSPENDED, CLOSED }   
+
+    struct Market {
+        MarketStatus marketStatus; //Estado de la apuesta 
+    }
+
     //Mercados de las apuestas
-    mapping(uint128 => bool) internal marketsExists;  
+    mapping(uint128 => bool)   internal marketsExists;  
+    mapping(uint128 => Market) internal markets; 
 
     /**
      * @dev Verifica que haya un mínimo stake
@@ -24,6 +37,7 @@ contract BetexAdmin is BetexAccessControl{
     
     /**
      * @dev Obtiene el balance en Ether acumulado en el contrato
+     * @return el balance acumulado del contrato
      */
     function getBalance() public view  onlyCFO() returns (uint){
         return address(this).balance;
@@ -38,7 +52,8 @@ contract BetexAdmin is BetexAccessControl{
     }
 
     /**
-     * @dev Setea el monto mínimo de apuestas permitidos. Si la comisión es del 
+     * @dev Setea el monto mínimo de apuestas permitidos. El porcentaje que se le cobra
+     *      es sobre el total que ganó
      * @param _commission Es la comisión que le cobra al ganador de una apuesta
      */
     function setCommission(uint8 _commission) public onlyCFO(){
@@ -58,7 +73,26 @@ contract BetexAdmin is BetexAccessControl{
      * @dev Agrega un mercado a la base de datos
      * @param _marketIdLaursia Id en Laurasia
      */
-    function addMarket(uint128 _marketIdLaursia) public onlyMarketManager(){
+    function openMarket(uint128 _marketIdLaursia) public onlyMarketManager(){
         marketsExists[_marketIdLaursia] = true;
+        markets[_marketIdLaursia].marketStatus = MarketStatus.ACTIVE;
     }    
+
+    /**
+     * @dev Suspende un mercado
+     * @param _marketIdLaursia Id en Laurasia
+     */
+    function suspendMarket(uint128 _marketIdLaursia) public onlyMarketManager(){
+        if (marketsExists[_marketIdLaursia])
+            markets[_marketIdLaursia].marketStatus = MarketStatus.SUSPENDED;
+    }    
+
+    /**
+     * @dev Cierra un mercado
+     * @param _marketIdLaursia Id en Laurasia
+     */
+    function closeMarket(uint128 _marketIdLaursia) public onlyMarketManager(){
+        if (marketsExists[_marketIdLaursia])
+            markets[_marketIdLaursia].marketStatus = MarketStatus.CLOSED;   
+    }  
 }    

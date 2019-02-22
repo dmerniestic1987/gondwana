@@ -8,10 +8,10 @@ contract BetexCore is BetexBase{
         marketManagerAddress = msg.sender;
         cfoAddress = msg.sender;
         minimumStake = 0.01 ether;
-        commission = 5; //Se cobra el 5% de comisión al ganador
+        commission = 5; //Se cobra el 5% de comisión del payout al ganador
         gain = 0;
         //Creamos el mercado y la apuesta génesis
-        addMarket(0);
+        openMarket(0);
         _createBet(0, 0, 1, BetType.BACK, 0, 0, BetStatus.CLOSED); 
     }
 
