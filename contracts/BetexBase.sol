@@ -171,11 +171,6 @@
         */
         function _placeBet( uint128 _marketId, uint64 _runnerId, uint64 _odd, uint _stake
                         , BetType _betType, uint _counterBetId) internal{
-            //El mercado tiene que existir
-            require(marketsExists[_marketId], "El mercado no existe");
-            
-            //El ID no puede ser mayor a la cantiddad de total de elementos
-            require(_counterBetId < bets.length, "El ID de la contraapuesta no existe");
 
             //Creamos el el Bet y le asignamos un id Único
             uint betId = 0;

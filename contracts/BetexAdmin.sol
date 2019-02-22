@@ -34,6 +34,18 @@ contract BetexAdmin is BetexAccessControl{
         require(msg.value >= minimumStake, "No llegó a la apuesta mínima");
         _;
     }
+
+    /**
+     * @dev El mercado tiene que estar activo
+     */
+    modifier activeMarket(uint128 _marketId){
+         //El mercado tiene que existir
+        require(marketsExists[_marketId], "El mercado no existe");
+
+        //El mercado tiene que existir
+        require(markets[_marketId].marketStatus == MarketStatus.ACTIVE, "El mercado no existe");
+        _;       
+    }
     
     /**
      * @dev Obtiene el balance en Ether acumulado en el contrato
