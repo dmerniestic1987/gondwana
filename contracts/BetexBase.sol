@@ -3,7 +3,7 @@
     
     contract BetexBase is BetexAdmin{
         event Print(string name, string info);
-        event PlacedBet(address bettor, uint128 marketId, uint betId, uint64 odds, uint stake);
+        event PlacedBet(address bettor, uint betId);
 
         enum BetType        { BACK, LAY }                                       
         enum BetStatus      { OPEN, PARTIALLY_MATCHED, FULL_MATCHED, CLOSED }   
@@ -42,7 +42,7 @@
 
         //Permite resolver las apuestas de una manera más eficiente
         mapping(bytes32 => uint[]) internal placedBets;
-        
+
         /**
         * @dev Verifica que se cumpla con el mínimo ODD
         */
@@ -231,7 +231,7 @@
             balanceByMarket[_marketId] += msg.value;
 
             //Emitimos la orden
-            emit PlacedBet(msg.sender, _marketId, betId, _odd, _stake);
+            emit PlacedBet(msg.sender, betId);
         }
 
         /**
