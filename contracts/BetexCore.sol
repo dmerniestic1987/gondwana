@@ -74,16 +74,15 @@ contract BetexCore is BetexBase{
      * @param _runnerId Id Runner en Laurasia
      * @param _odd cuota. El valor decimal en uint. Si en al app el apostador ingresa 1.41, acá llega 141
      * @param _stake Es el monto que se pone en una apuesta
-     * @param _counterBetId ID de la apuesta contra la que se apuesta. Si es 0, significa que es un nuevo odd
      */
-    function placeBackBet( uint128 _marketId, uint64 _runnerId, uint64 _odd, uint _stake
-                        , uint _counterBetId) external payable minStake() minOdd(_odd) activeMarket(_marketId){
+    function placeBackBet( uint128 _marketId, uint64 _runnerId, uint64 _odd, uint _stake) external payable minStake() minOdd(_odd) activeMarket(_marketId){
         require(msg.value == _stake, "LAY: Stake y Odd no coinciden con lo apostado");
         
         //El ID no puede ser mayor a la cantiddad de total de elementos
-        require(_counterBetId < bets.length, "El ID de la contraapuesta no existe");
+        //require(_counterBetId < bets.length, "El ID de la contraapuesta no existe");
         
-        _placeBet(_marketId, _runnerId, _odd, _stake, BetType.BACK, _counterBetId);
+        _placeBet2(_marketId, _runnerId, _odd, _stake, BetType.BACK);
+        //_placeBet(_marketId, _runnerId, _odd, _stake, BetType.BACK, _counterBetId);
     }
 
     /**
@@ -99,15 +98,11 @@ contract BetexCore is BetexBase{
      * @param _runnerId Id Runner en Laurasia
      * @param _odd cuota. El valor decimal en uint. Si en al app el apostador ingresa 1.41, acá llega 141
      * @param _stake Es el monto que se pone en una apuesta
-     * @param _counterBetId ID de la apuesta contra la que se apuesta. Si es 0, significa que es un nuevo odd
      */
-    function placeLayBet( uint128 _marketId, uint64 _runnerId, uint64 _odd, uint _stake
-                        , uint _counterBetId) external payable minStake() minOdd(_odd) activeMarket(_marketId) {
+    function placeLayBet( uint128 _marketId, uint64 _runnerId, uint64 _odd, uint _stake) external payable minStake() minOdd(_odd) activeMarket(_marketId) {
         uint liability = ( _odd - 100 ) * _stake / 100;
         require(msg.value == liability, "LAY: Stake y Odd no coinciden con lo apostado");
-        
-        //El ID no puede ser mayor a la cantiddad de total de elementos
-        require(_counterBetId < bets.length, "El ID de la contraapuesta no existe");
-        _placeBet(_marketId, _runnerId, _odd, _stake, BetType.LAY, _counterBetId);
+        //require(_counterBetId < bets.length, "El ID de la contraapuesta no existe");
+        _placeBet2(_marketId, _runnerId, _odd, _stake, BetType.LAY);
     }    
 }
