@@ -28,7 +28,7 @@ contract BetexCore is BetexBase{
         _resolveBackBets(_marketId, _winnerRuner);
         
         for (uint i = 0; i < _losserRunners.length; i++){
-            _resolveBackBets(_marketId, _losserRunners[i]);
+            _resolveLayBets(_marketId, _losserRunners[i]);
         } 
     }
     /**
