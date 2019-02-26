@@ -44,6 +44,39 @@ contract BetexCore is BetexBase{
     }
 
     /**
+     * @dev Obtiene la lista de de las apuestas en contra
+     * @param _marketId ID del mercado
+     * @param _runnerId ID del runner en el mercado
+     * @param _odd La cuota apostada
+     */
+    function getBackPlacedBetsByOdds(uint128 _marketId, uint64 _runnerId, uint64 _odd ) 
+            public view returns (uint[] memory ){
+        
+        bytes32 placedBetKey = _keyOdds(_marketId
+                                        , _runnerId
+                                        , _odd
+                                        , BetType.BACK ); 
+        return placedBetByOdds[placedBetKey];
+    }
+
+    /**
+     * @dev Obtiene la lista de de las apuestas en contra
+     * @param _marketId ID del mercado
+     * @param _runnerId ID del runner en el mercado
+     * @param _odd La cuota apostada
+     */
+    function getLayPlacedBetsByOdds(uint128 _marketId, uint64 _runnerId, uint64 _odd ) 
+            public view returns (uint[] memory ){
+        
+        bytes32 placedBetKey = _keyOdds(_marketId
+                                        , _runnerId
+                                        , _odd
+                                        , BetType.LAY ); 
+        return placedBetByOdds[placedBetKey];
+    }
+
+
+    /**
      * @dev Obtiene la lista de las apuestas matcheadas
      * @param _betId es el ID de la apuesta que se quiere consultar
      */
@@ -75,7 +108,9 @@ contract BetexCore is BetexBase{
      * @param _odd cuota. El valor decimal en uint. Si en al app el apostador ingresa 1.41, acá llega 141
      * @param _stake Es el monto que se pone en una apuesta
      */
-    function placeBackBet( uint128 _marketId, uint64 _runnerId, uint64 _odd, uint _stake) external payable minStake() minOdd(_odd) activeMarket(_marketId){
+    function placeBackBet( uint128 _marketId, uint64 _runnerId
+                         , uint64 _odd, uint _stake) external payable 
+                           minStake() minOdd(_odd) activeMarket(_marketId){
         require(msg.value == _stake, "LAY: Stake y Odd no coinciden con lo apostado");
         
         //El ID no puede ser mayor a la cantiddad de total de elementos
@@ -99,7 +134,9 @@ contract BetexCore is BetexBase{
      * @param _odd cuota. El valor decimal en uint. Si en al app el apostador ingresa 1.41, acá llega 141
      * @param _stake Es el monto que se pone en una apuesta
      */
-    function placeLayBet( uint128 _marketId, uint64 _runnerId, uint64 _odd, uint _stake) external payable minStake() minOdd(_odd) activeMarket(_marketId) {
+    function placeLayBet( uint128 _marketId, uint64 _runnerId
+                        , uint64 _odd, uint _stake) external payable 
+                          minStake() minOdd(_odd) activeMarket(_marketId) {
         uint liability = ( _odd - 100 ) * _stake / 100;
         require(msg.value == liability, "LAY: Stake y Odd no coinciden con lo apostado");
         //require(_counterBetId < bets.length, "El ID de la contraapuesta no existe");

@@ -85,7 +85,7 @@
                     uint totalMatched = bet.matchedStake * bet.odd / 100;
                     betexGain = (totalMatched * commission) / 100;
                     gain += betexGain;
-                    payout = bet.stake + totalMatched;
+                    payout = (bet.stake - bet.matchedStake) + totalMatched;
 
                 }
                 //Las apuestas no matchearon. Se le debe devolver el dinero 
@@ -315,7 +315,7 @@
 
             for(uint i = 0; i < counterBets.length && !finishPlaceBet; i++ ){
                 //Omitimos los elementos 0, que se interpertan como eliminados
-                if (counterBets[i] > 0){
+                if (counterBets[i] > 0){ 
                     //Obtenemos la contrapauesta
                     Bet storage counterBet = bets[counterBets[i]];
                     
@@ -382,7 +382,7 @@
                 }
             }
             
-            betId = bets.push(newBet);
+            betId = bets.push(newBet) - 1;
             //La agregamos como un placed Odd                
             bytes32 keyNewOdd = _keyOdds( _marketId
                                         , _runnerId
