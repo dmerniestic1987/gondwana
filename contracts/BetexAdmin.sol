@@ -3,8 +3,9 @@ import "./BetexAccessControl.sol";
 
 /**
  * @title BetexAdmin
- * @dev Este contrato permite restringir los accesos a roles a funcionalidades
- *      del contrato a roles específicos
+ * @dev Este contrato permite configurar cuál es el mínimo de apuestas y las comisiones 
+ *      que se le cobran al ganador del las apuestas. También permite administrar los 
+ *      mercados. 
  */
 contract BetexAdmin is BetexAccessControl{
     //Apuesta mínima
@@ -17,7 +18,10 @@ contract BetexAdmin is BetexAccessControl{
     uint internal gain;
     
     //Estados de los mercados
-    enum MarketStatus { ACTIVE, SUSPENDED, CLOSED }   
+    enum MarketStatus { ACTIVE      //Mercado Activo: Se puede apostar
+                      , SUSPENDED   //Mercado suspendido: NO se puede apostar y espera a que finalice un evento
+                      , CLOSED  }   //Cerrado: El mercado está cerrado
+                        
 
     struct Market {
         MarketStatus marketStatus; //Estado de la apuesta 
@@ -43,7 +47,7 @@ contract BetexAdmin is BetexAccessControl{
         require(marketsExists[_marketId], "El mercado no existe");
 
         //El mercado tiene que existir
-        require(markets[_marketId].marketStatus == MarketStatus.ACTIVE, "El mercado no existe");
+        require(markets[_marketId].marketStatus == MarketStatus.ACTIVE, "El mercado no está activo");
         _;       
     }
     

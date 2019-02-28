@@ -1,11 +1,19 @@
     pragma solidity >= 0.5.0;
     import "./BetexAdmin.sol";
     import "./math/SafeMath.sol";
+
+/**
+ * @title BetexBase
+ * @dev Este contrato define los métodos internos para los métodos y servicios 
+ * del contrato BetexCore. 
+ */
     contract BetexBase is BetexAdmin{
         using SafeMath for uint256;
         using SafeMath for uint64;
-        event Print(string name, string info);
+
         event PlacedBet(address bettor, uint betId);
+        event SolvedBackBets(uint128 marketId);
+        event SolvedLayBets(uint128 marketId);
 
         enum BetType        { BACK, LAY }                                       
         enum BetStatus      { OPEN, PARTIALLY_MATCHED, FULL_MATCHED, CLOSED }   
@@ -55,11 +63,6 @@
         * @param _winnerRunnerId Id del runner ganador del mercado
         */
         function _resolveBackBets( uint128 _marketId, uint64 _winnerRunnerId ) internal{
-            //El mercado tiene que existir
-            require(marketsExists[_marketId], "El mercado no existe");
-
-            //TIENEN QUE HABER SUFICIENTES FONDOS EN EL CONTRATO PARA PAGAR EL MERCADO
-            //Obtenemos todos los que apostaron a favor del runner Ganador y les pagamos
             bytes32 placedBetKey = _keyResolver(_marketId, _winnerRunnerId, BetType.BACK );
             uint[] memory winnerBackBets = placedBets[placedBetKey];
             
@@ -105,8 +108,6 @@
         * @param _looserRunnerId Id del runner perdedor del mercado
         */
         function _resolveLayBets( uint128 _marketId, uint64 _looserRunnerId ) internal {
-            //El mercado tiene que existir
-            require(marketsExists[_marketId], "El mercado no existe");
             //Obtenemos la lista de los competidors que perdieron, y por cada
             //uno de ellos, traemos las apuestas para resolverlas
             bytes32 placedBetKey = _keyResolver(_marketId, _looserRunnerId, BetType.LAY );

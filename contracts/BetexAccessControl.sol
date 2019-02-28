@@ -3,8 +3,11 @@ import "./Ownable.sol";
 
 /**
  * @title BetexAccessControl
- * @dev Este contrato permite restringir los accesos a roles a funcionalidades
- *      del contrato a roles específicos
+ * @dev Este contrato permite definir los roles específicos de las personas para 
+ *      restringir el acceso a ciertas funcionalidades. Los roles son: 
+ *      - CFO: Chief Finantial Officer: El resposable de administrar los fondos. 
+ *      - MarketManager: El encagado de administrar los mercados de apuestas.
+ *      - Owner: Es el dueño del contrato, en este caso el de BETEX. Respeta el contrato Ownable
  */
 contract BetexAccessControl is Ownable{
     address public marketManagerAddress;

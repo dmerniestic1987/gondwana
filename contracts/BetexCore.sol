@@ -1,6 +1,11 @@
 pragma solidity >= 0.5.0;
 import "./BetexBase.sol";
 
+/**
+ * @title BetexCore
+ * @dev Contrato con las funciones principales para la aplicación BETEX. 
+ * Permite colocar apuestas 
+ */
 contract BetexCore is BetexBase{
 
     constructor() public {
@@ -18,14 +23,14 @@ contract BetexCore is BetexBase{
     /**
     * @dev Resuelve las apuestas de un mercado determinado
     * @param _marketId Id del mercado en Laurasia
-    * @param _winnerRuner Id del runner ganador del mercado
+    * @param _winnerRunner Id del runner ganador del mercado
     * @param _losserRunners Array de los ID de los runners de los pededores del mercado 
     */
-    function resolveBetByMarket( uint128 _marketId, uint64 _winnerRuner
+    function resolveBetByMarket( uint128 _marketId, uint64 _winnerRunner
                                , uint64[] memory _losserRunners) public 
                                  onlyMarketManager() activeMarket(_marketId){
         //Resuelve las apuestas a favor
-        _resolveBackBets(_marketId, _winnerRuner);
+        _resolveBackBets(_marketId, _winnerRunner);
         
         //Resuelve las apuestas en contra
         for (uint i = 0; i < _losserRunners.length; i++){
