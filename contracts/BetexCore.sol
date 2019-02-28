@@ -21,15 +21,19 @@ contract BetexCore is BetexBase{
     * @param _winnerRuner Id del runner ganador del mercado
     * @param _losserRunners Array de los ID de los runners de los pededores del mercado 
     */
-    function resolveBetByMarket( uint128 _marketId
-                               , uint64 _winnerRuner
-                               , uint64[] memory _losserRunners) public onlyMarketManager(){
-        
+    function resolveBetByMarket( uint128 _marketId, uint64 _winnerRuner
+                               , uint64[] memory _losserRunners) public 
+                                 onlyMarketManager() activeMarket(_marketId){
+        //Resuelve las apuestas a favor
         _resolveBackBets(_marketId, _winnerRuner);
         
+        //Resuelve las apuestas en contra
         for (uint i = 0; i < _losserRunners.length; i++){
             _resolveLayBets(_marketId, _losserRunners[i]);
         } 
+
+        //cierra el mercado
+        closeMarket(_marketId);
     }
     /**
      * @dev Obtiene la lista de de las apuestas en contra
@@ -75,16 +79,6 @@ contract BetexCore is BetexBase{
         return placedBetByOdds[placedBetKey];
     }
 
-
-    /**
-     * @dev Obtiene la lista de las apuestas matcheadas
-     * @param _betId es el ID de la apuesta que se quiere consultar
-     */
-    function getMatchedBets(uint _betId) public view returns(uint[] memory){
-        require(_betId < bets.length, "El id no existe");
-        return matchedBets[_betId];
-    } 
-
     /**
      * Verifica si ganó una apuesta determinada
      * @param _betId ID de la apuesta
@@ -93,7 +87,7 @@ contract BetexCore is BetexBase{
     function isBetWinner(uint _betId) public view returns(bool){
         require(_betId < bets.length, "El ID ingresado no existe");
         Bet memory bet = bets[_betId];
-        bytes32 marketResultKey = _keyResolver(bet.marketId, bet.runnerId, bet.betType );
+        bytes32 marketResultKey = _keyResolver(bet.marketId, bet.runnerId, bet.betType);
         return marketResultWinners[marketResultKey];
     }
 
@@ -113,11 +107,7 @@ contract BetexCore is BetexBase{
                            minStake() minOdd(_odd) activeMarket(_marketId){
         require(msg.value == _stake, "LAY: Stake y Odd no coinciden con lo apostado");
         
-        //El ID no puede ser mayor a la cantiddad de total de elementos
-        //require(_counterBetId < bets.length, "El ID de la contraapuesta no existe");
-        
-        _placeBet2(_marketId, _runnerId, _odd, _stake, BetType.BACK);
-        //_placeBet(_marketId, _runnerId, _odd, _stake, BetType.BACK, _counterBetId);
+        _placeBet(_marketId, _runnerId, _odd, _stake, BetType.BACK);
     }
 
     /**
@@ -137,9 +127,9 @@ contract BetexCore is BetexBase{
     function placeLayBet( uint128 _marketId, uint64 _runnerId
                         , uint64 _odd, uint _stake) external payable 
                           minStake() minOdd(_odd) activeMarket(_marketId) {
-        uint liability = ( _odd - 100 ) * _stake / 100;
+        uint liability = (( _odd.sub(100)).mul(_stake)).div(100);
         require(msg.value == liability, "LAY: Stake y Odd no coinciden con lo apostado");
-        //require(_counterBetId < bets.length, "El ID de la contraapuesta no existe");
-        _placeBet2(_marketId, _runnerId, _odd, _stake, BetType.LAY);
+
+        _placeBet(_marketId, _runnerId, _odd, _stake, BetType.LAY);
     }    
 }

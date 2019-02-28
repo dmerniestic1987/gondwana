@@ -1,7 +1,9 @@
     pragma solidity >= 0.5.0;
     import "./BetexAdmin.sol";
-    
+    import "./math/SafeMath.sol";
     contract BetexBase is BetexAdmin{
+        using SafeMath for uint256;
+        using SafeMath for uint64;
         event Print(string name, string info);
         event PlacedBet(address bettor, uint betId);
 
@@ -22,9 +24,6 @@
         //Guarda las apuestas con ID único  
         Bet[] public bets;         
         
-        //Permite guardar los ID con lo que se matchearon las apuestas
-        mapping(uint => uint[]) public matchedBets ;
-
         //Agrupa las apuestas por tipo de Mercado.  //Key: MarketId  //Value: Id - array índices de bets
         mapping(uint128 => uint[]) public betsByMarket; 
 
@@ -73,26 +72,23 @@
                 //Cerramos las apuestas que matchearon completamente.
                 //Se paga completamente stake * odd.
                 if (bet.betStatus == BetStatus.FULL_MATCHED){  
-                    emit Print("resolveBacK 1", "Full Matched");
-                    payout = (bet.odd * bet.stake) / 100;              
-                    betexGain = (payout * commission) / 100;
-                    gain += betexGain;
+                    payout = (bet.odd.mul(bet.stake)).div(100);              
+                    betexGain = (payout.mul(commission)).div(100);
+                    gain = gain.add(betexGain);
                 }
                 //Las apuestas fueron parcialmente matcheadas. En este caso
                 //devolvemos el total matcheado más el total que no matcheó.
                 else if (bet.betStatus == BetStatus.PARTIALLY_MATCHED){
-                    emit Print("resolveBacK 2", "PARTIALLY Matched");
-                    uint totalMatched = bet.matchedStake * bet.odd / 100;
-                    betexGain = (totalMatched * commission) / 100;
-                    gain += betexGain;
-                    payout = (bet.stake - bet.matchedStake) + totalMatched;
+                    uint totalMatched = (bet.matchedStake.mul(bet.odd)).div(100);
+                    betexGain = (totalMatched.mul(commission)).div(100);
+                    gain = gain.add(betexGain);
+                    payout = (bet.stake.sub(bet.matchedStake)).add(totalMatched);
 
                 }
                 //Las apuestas no matchearon. Se le debe devolver el dinero 
                 //de la apuesta si comisión
                 else if (bet.betStatus == BetStatus.OPEN) {
                     payout = bet.stake;
-                    emit Print("resolveBacK 3", "OPEN");
                 }
 
                 require(address(this).balance >= payout - betexGain, "_resolveBackBet - Sin fondos");
@@ -111,7 +107,6 @@
         function _resolveLayBets( uint128 _marketId, uint64 _looserRunnerId ) internal {
             //El mercado tiene que existir
             require(marketsExists[_marketId], "El mercado no existe");
-            emit Print("resolve 2", "Resolvemos los LAY");
             //Obtenemos la lista de los competidors que perdieron, y por cada
             //uno de ellos, traemos las apuestas para resolverlas
             bytes32 placedBetKey = _keyResolver(_marketId, _looserRunnerId, BetType.LAY );
@@ -128,32 +123,28 @@
                 //Cerramos las apuestas que matchearon completamente.
                 //Se paga completamente stake * odd.
                 if (bet.betStatus == BetStatus.FULL_MATCHED){  
-                    payout = (bet.odd * bet.stake) / 100;              
-                    betexGain = (payout * commission) / 100;
-                    gain += betexGain;
-                    emit Print("resolveLayMarket", "mercado full match");
+                    payout = (bet.odd.mul(bet.stake)).div(100);              
+                    betexGain = (payout.mul(commission)).div(100);
+                    gain = gain.add(betexGain);
                 }
                 //Las apuestas fueron parcialmente matcheadas. En este caso
                 //devolvemos el total matcheado más el total que no matcheó.
                 else if (bet.betStatus == BetStatus.PARTIALLY_MATCHED){
-                    uint totalMatched = bet.matchedStake * bet.odd / 100;
-                    betexGain = (totalMatched * commission) / 100;
-                    gain += betexGain;
+                    uint totalMatched = (bet.matchedStake.mul(bet.odd)).div(100);
+                    betexGain = (totalMatched.mul(commission)).div(100);
+                    gain = gain.add(betexGain);
 
-                    uint availableLiability = (bet.odd - 100) * (bet.stake - bet.matchedStake) / 100;
-                    payout = totalMatched + availableLiability;
-                    emit Print("resolveLayMarket", "mercado partially");
-
+                    uint availableLiability = ((bet.odd.sub(100)).mul((bet.stake.sub(bet.matchedStake)))).div(100);
+                    payout = totalMatched.add(availableLiability);
                 }
                 //Las apuestas no matchearon. Se le debe devolver el dinero 
                 //de la apuesta si comisión.
                 else if (bet.betStatus == BetStatus.OPEN) {
-                    payout = (bet.odd - 100) * bet.stake / 100;
-                    emit Print("resolveLayMarket", " mercado clossed");
+                    payout = ((bet.odd.sub(100)).mul(bet.stake)).div(100);
                 }
                 
-                require(address(this).balance >= payout - betexGain, "_resolveLayBet - Sin fondos");
-                bettor.transfer(payout - betexGain);
+                require(address(this).balance >= payout.sub(betexGain), "Sin fondos");
+                bettor.transfer(payout.sub(betexGain));
                 bet.betStatus = BetStatus.CLOSED;                
             }
             marketResultWinners[placedBetKey] = true;
@@ -167,7 +158,7 @@
         * @param _stake Es el monto que se pone en una apuesta
         * @param _betType tipo de apuesta
         */
-        function _placeBet2( uint128 _marketId, uint64 _runnerId, uint64 _odd, uint _stake
+        function _placeBet( uint128 _marketId, uint64 _runnerId, uint64 _odd, uint _stake
                            , BetType _betType) internal{
             
             //Verificamos si existen contraapuestas registradas
@@ -184,13 +175,11 @@
             
             //Si existen contraapuestas, tenemos que crear una nueva y matchearlas
             if ( placedBetByOdds[keyCounterOdd].length > 0 ){
-                emit Print("_placeBet2 01 A", "se llama _createAndMatch2");
-                betId = _createAndMatch2(_marketId, _runnerId, _odd, _betType, _stake, keyCounterOdd);
+                betId = _createAndMatch(_marketId, _runnerId, _odd, _betType, _stake, keyCounterOdd);
             }
             //Si no existe, tenemos que crear una nueva apuesta y dejarla como abierta
             //en los mapeos que nos permite hacer el matcheo de las apuetas
-            else{      
-                emit Print("_placeBet2 01 B", "sólo se hace create");                      
+            else{                       
                 betId = _createBet( _marketId
                                   , _runnerId
                                   , _odd
@@ -225,71 +214,6 @@
 
 
         /**
-        * @dev Registra una nueva apuesta para un mercado y un runner determinado
-        * @param _marketId Id en Laurasia
-        * @param _runnerId Runner en Laurasia
-        * @param _odd cuota. El valor decimal se transforma a uint. Si en al app el apostador ingresa 1.41, acá llega 141
-        * @param _stake Es el monto que se pone en una apuesta
-        * @param _betType tipo de apuesta
-        * @param _counterBetId ID de la apuesta contra la que se apuesta. Si es 0, significa que es un nuevo odd
-        */
-        function _placeBet( uint128 _marketId, uint64 _runnerId, uint64 _odd, uint _stake
-                        , BetType _betType, uint _counterBetId) internal{
-
-            //Creamos el el Bet y le asignamos un id Único
-            uint betId = 0;
-            if (_counterBetId > 0){
-                require(bets[_counterBetId].betType != _betType, "Las apuestas son del mismo tipo");
-                require(bets[_counterBetId].odd == _odd, "No coinciden las cuotas");
-                require(bets[_counterBetId].betStatus != BetStatus.CLOSED, "La apueta está cerrada");
-                
-                if(bets[_counterBetId].betStatus == BetStatus.FULL_MATCHED){
-                    betId = _createBet( _marketId
-                                      , _runnerId
-                                      , _odd
-                                      , _betType
-                                      , _stake 
-                                      , 0
-                                      , BetStatus.OPEN );
-                }
-                
-                if( bets[_counterBetId].betStatus == BetStatus.PARTIALLY_MATCHED || 
-                    bets[_counterBetId].betStatus == BetStatus.OPEN ){
-                    betId = _createAndMatch( _marketId
-                                            , _runnerId
-                                            , _odd
-                                            , _betType
-                                            , _stake
-                                            , _counterBetId );
-                }
-            }
-            else{
-                betId = _createBet( _marketId
-                                , _runnerId
-                                , _odd
-                                , _betType
-                                , _stake
-                                , 0
-                                , BetStatus.OPEN );
-            }
-            
-            //Agregamos la apuesta al histórico del usuario
-            ownerToBetsIndex[msg.sender].push(betId);
-            
-            //Guardamos al apostador
-            betIndexToOwner[betId] = msg.sender;
-
-            //Agregamos la apuesta a la base de Mercados
-            betsByMarket[_marketId].push(betId);  
-            
-            //Agregamos agregamos la lista de apuestas hechas
-            bytes32 placedBetKey = _keyResolver(_marketId, _runnerId, _betType );
-            placedBets[placedBetKey].push(betId);
-
-            //Emitimos la orden
-            emit PlacedBet(msg.sender, betId);
-        }
-        /**
         * @dev Crea y matchea una apuesta con una contraapuesta
         * @param _marketId Id en Laurasia
         * @param _runnerId Runner en Laurasia
@@ -299,7 +223,7 @@
         * @param counterKeyOdds Es el Key del Map con las contraapuestas
         * @return betId - El ID de la apuesta
         */
-        function _createAndMatch2( uint128 _marketId, uint64 _runnerId, uint64 _odd, BetType _betType
+        function _createAndMatch( uint128 _marketId, uint64 _runnerId, uint64 _odd, BetType _betType
                                  , uint _stake, bytes32 counterKeyOdds ) internal returns(uint){
             
             uint[] storage counterBets = placedBetByOdds[counterKeyOdds];
@@ -322,7 +246,6 @@
                     //Si por alguna razón no se había eliminado la contraapuesta. la borramos
                     if ( counterBet.betStatus == BetStatus.CLOSED || 
                          counterBet.betStatus == BetStatus.FULL_MATCHED ){
-                         emit Print("_createAndMatch2 01", "BET CLOSSED OR FULL MATCHED");
                          delete counterBets[i];
                     }                    
                     //Trabajamos con las apuestas que están en estado Open o Parcialmente matcheadas
@@ -336,7 +259,6 @@
                         if (availableCounterStake == 0){
                             counterBet.betStatus = BetStatus.FULL_MATCHED;
                             delete counterBets[i];
-                            emit Print("_createAndMatch2 02", "FULL MATCHED");
                         }
 
                         else{
@@ -350,7 +272,6 @@
                                 newBet.matchedStake += availableStake;
                                 newBet.betStatus = BetStatus.FULL_MATCHED;
                                 finishPlaceBet = true;
-                                emit Print("_createAndMatch2 03", "availableStake == availableCounterStake");
                                 //En este caso no agregamos la apuesta a placedBetByOdds ya que es innecesaria
                             }
 
@@ -364,7 +285,6 @@
 
                                 newBet.matchedStake += availableCounterStake;
                                 newBet.betStatus = BetStatus.PARTIALLY_MATCHED;
-                                emit Print("_createAndMatch2 04", "availableStake > availableCounterStake");
                             }
                             //Caso 3. El stake de la apuesta es inferior al disponible en la contraapuesta. Se debe
                             //actualizar el matchedStake de ambos y agregar el ID a la lista de de matched de ambas
@@ -375,7 +295,6 @@
                                 newBet.matchedStake += availableStake   ;
                                 newBet.betStatus = BetStatus.FULL_MATCHED;
                                 finishPlaceBet = true;
-                                emit Print("_createAndMatch2 05", "availableStake < availableCounterStake");
                             }
                         }   
                     }
@@ -390,96 +309,9 @@
                                         , _betType ); 
 
             placedBetByOdds[keyNewOdd].push(betId);   
-            //Acá ejecutamos la actualized de las matchedBets
-           // matchedBets[counterBets[i]].push(betId);
-            //matchedBets[betId].push(counterBets[i]);            
+         
             return betId;            
         }        
-
-        /**
-        * @dev Crea y matchea una apuesta con una contraapuesta
-        * @param _marketId Id en Laurasia
-        * @param _runnerId Runner en Laurasia
-        * @param _odd cuota. El valor decimal se transforma a uint. Si en al app el apostador ingresa 1.41, acá llega 141
-        * @param _betType tipo de apuesta
-        * @param _stake El monto que apostó el jugador
-        * @param _counterBetId ID de la apuesta contra la que se apuesta. Si es 0, significa que es un nuevo odd
-        * @return betId - El ID de la apuesta
-        */
-        function _createAndMatch( uint128 _marketId, uint64 _runnerId, uint64 _odd, BetType _betType
-                                , uint _stake, uint _counterBetId ) internal returns(uint){
-            //Obtenemos la contrapauesta
-            Bet storage counterBet = bets[_counterBetId];
-            
-            //Calculamos el total del stake disponible de la contraapuesta
-            uint availableCounterStake = counterBet.stake - counterBet.matchedStake;    
-            uint betId = 0;
-
-            //Si el stake disponible es 0, tenemos que crear la nueva apuesta como abierta y 
-            //sin matchedStake. Debemos cerrar la contraapuesta y no realizar el matcheo de las apuestas
-            if (availableCounterStake == 0){
-                counterBet.betStatus = BetStatus.CLOSED;
-                betId = _createBet( _marketId
-                                , _runnerId
-                                , _odd
-                                , _betType
-                                , _stake, 
-                                0
-                                , BetStatus.OPEN );
-            }
-            else{
-                //Se repite _createBet en todos los casos por claridad en la lectura del código
-
-                //Caso 1: Las apuestas matchean completamente porque el stake es el mismo. Ambas se deben cerrar,
-                //acutalizar el matchedStake y agregar el ID a la lista de matchedBets
-                if (_stake == availableCounterStake){
-                    counterBet.matchedStake += _stake;
-                    counterBet.betStatus = BetStatus.FULL_MATCHED;
-                    betId = _createBet( _marketId
-                                    , _runnerId
-                                    , _odd
-                                    , _betType
-                                    , _stake
-                                    , _stake
-                                    , BetStatus.FULL_MATCHED);
-                }
-
-                //Caso 2: El stake apuesta es superior al disponible de la contrapuesta. Se debe 
-                //acualizar el matchedStake y agrgear el ID a la lista de machtedBets de ambas
-                //apuestas, pero sólo se debe cerrar la contraApuesta
-                else if (_stake > availableCounterStake){
-                    counterBet.betStatus = BetStatus.FULL_MATCHED;
-                    counterBet.matchedStake += availableCounterStake;
-                    betId = _createBet( _marketId
-                                    , _runnerId
-                                    , _odd
-                                    , _betType
-                                    , _stake
-                                    , availableCounterStake
-                                    , BetStatus.PARTIALLY_MATCHED );           
-                }
-                //Caso 3. El stake de la apuesta es inferior al disponible en la contraapuesta. Se debe
-                //actualizar el matchedStake de ambos y agregar el ID a la lista de de matched de ambas
-                //apuestas, pero sólo se debe cerrar la apuesta.
-                else {
-                    counterBet.matchedStake += _stake;
-                    counterBet.betStatus = BetStatus.PARTIALLY_MATCHED;
-                    betId = _createBet( _marketId
-                                    , _runnerId
-                                    , _odd
-                                    , _betType
-                                    , _stake
-                                    , _stake
-                                    , BetStatus.FULL_MATCHED );
-                }
-
-                //Acá ejecutamos la actaulizacón de las matchedBets
-                matchedBets[_counterBetId].push(betId);
-                matchedBets[betId].push(_counterBetId);
-            }   
-
-            return betId;            
-        }
 
         /**
         * @dev Crea una nueva apuesta y la agrega a la base.
