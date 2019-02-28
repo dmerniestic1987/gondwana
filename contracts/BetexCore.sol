@@ -21,6 +21,30 @@ contract BetexCore is BetexBase{
     }
 
     /**
+    * @dev Obtiene la información de una puesta determinada
+    * @param _betId Id de la apuesta en la cadena de bloques
+    * @return bet
+    */
+    function getBet(uint _betId) public view  returns ( uint128 marketId
+                                                      , uint64  runnerId
+                                                      , uint64  odd
+                                                      , uint stake
+                                                      , uint matchedStake
+                                                      , BetType betType
+                                                      , BetStatus betStatus ){
+        require(_betId < bets.length, "El Id no existe");    
+        Bet memory bet = bets[_betId];
+        marketId = bet.marketId;
+        runnerId = bet.runnerId;
+        stake = bet.stake;
+        odd = bet.odd;
+        matchedStake = bet.matchedStake;
+        betType = bet.betType;
+        betStatus = bet.betStatus;
+    }
+
+
+    /**
     * @dev Resuelve las apuestas de un mercado determinado
     * @param _marketId Id del mercado en Laurasia
     * @param _winnerRunner Id del runner ganador del mercado
@@ -31,11 +55,13 @@ contract BetexCore is BetexBase{
                                  onlyMarketManager() activeMarket(_marketId){
         //Resuelve las apuestas a favor
         _resolveBackBets(_marketId, _winnerRunner);
-        
+        emit SolvedBackBets(_marketId); 
+
         //Resuelve las apuestas en contra
         for (uint i = 0; i < _losserRunners.length; i++){
             _resolveLayBets(_marketId, _losserRunners[i]);
         } 
+        emit SolvedLayBets(_marketId); 
 
         //cierra el mercado
         closeMarket(_marketId);

@@ -12,8 +12,13 @@ import "./Ownable.sol";
 contract BetexAccessControl is Ownable{
     address public marketManagerAddress;
     address public cfoAddress;
+
     string internal constant NOT_ALLOWED = "NA0001 NOT ALLOWED";
     string internal constant ADDRESS_NOT_OWNER = "NA0002 THE ADDRESS SHOULD NOT BE THE OWNER'S";
+
+    event SettedCFO(address oldAddress, address newAddress);
+    event SettedMarketManager(address oldAddress, address newAddress);
+
     /**
     * @dev Invocado cuando se realizan operaciones de administración de mercados de apuestas.
     */
@@ -36,7 +41,9 @@ contract BetexAccessControl is Ownable{
     */
     function setCFO(address _cfo) external onlyOwner{
         require(_cfo != owner, ADDRESS_NOT_OWNER);
+        address oldCfo = cfoAddress;
         cfoAddress = _cfo;
+        emit SettedCFO(oldCfo, cfoAddress);
     }
     
    /**
@@ -45,6 +52,9 @@ contract BetexAccessControl is Ownable{
     */
     function setMarketManager(address _marketManager) external onlyOwner{
         require(_marketManager != owner, ADDRESS_NOT_OWNER);
+        address oldManagerAddress = marketManagerAddress;
         marketManagerAddress = _marketManager;
+
+        emit SettedMarketManager(oldManagerAddress, marketManagerAddress);
     }
 }

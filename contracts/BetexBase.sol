@@ -47,6 +47,7 @@
         //Permite resolver las apuestas de una manera más eficiente
         mapping(bytes32 => uint[]) internal placedBets;
 
+        //Obtiene las apuestas por apuestas
         mapping(bytes32 => uint[]) internal placedBetByOdds;    
         
         /**

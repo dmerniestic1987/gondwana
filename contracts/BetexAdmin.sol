@@ -21,7 +21,12 @@ contract BetexAdmin is BetexAccessControl{
     enum MarketStatus { ACTIVE      //Mercado Activo: Se puede apostar
                       , SUSPENDED   //Mercado suspendido: NO se puede apostar y espera a que finalice un evento
                       , CLOSED  }   //Cerrado: El mercado está cerrado
-                        
+
+    event OpenMarket(uint128 marketId);
+    event ClosedMarket(uint128 marketId);      
+    event SuspendedMarket(uint128 marketId);            
+    event SettedCommision(uint8 oldComission, uint8 newComission); 
+    event SettedStake(uint oldMinStake, uint newMinStake); 
 
     struct Market {
         MarketStatus marketStatus; //Estado de la apuesta 
@@ -50,6 +55,20 @@ contract BetexAdmin is BetexAccessControl{
         require(markets[_marketId].marketStatus == MarketStatus.ACTIVE, "El mercado no está activo");
         _;       
     }
+
+    /**
+     * @dev El mercado tiene que estar activo o suspendido
+     */
+    modifier activeOrSupendedMarket(uint128 _marketId){
+         //El mercado tiene que existir
+        require(marketsExists[_marketId], "El mercado no existe");
+
+        //El mercado tiene que existir
+        require(markets[_marketId].marketStatus == MarketStatus.ACTIVE || 
+                markets[_marketId].marketStatus == MarketStatus.SUSPENDED, 
+                "El mercado no está activo");
+        _;       
+    }
     
     /**
      * @dev Obtiene el balance en Ether acumulado en el contrato
@@ -74,7 +93,9 @@ contract BetexAdmin is BetexAccessControl{
      */
     function setCommission(uint8 _commission) public onlyCFO(){
         require(_commission > 0 && _commission <= 100, "Porcentaje incorrecto");
+        uint8 oldComission = commission;
         commission = _commission;
+        emit SettedCommision(oldComission, commission);
     }
 
     /**
@@ -82,7 +103,9 @@ contract BetexAdmin is BetexAccessControl{
      * @param _minStake Mínimo permitido en wei
      */
     function setMinimunStake(uint _minStake) public onlyMarketManager(){
+        uint oldMinStake = minimumStake;
         minimumStake = _minStake;
+        emit SettedStake(oldMinStake, minimumStake);
     }
 
     /**
@@ -92,23 +115,26 @@ contract BetexAdmin is BetexAccessControl{
     function openMarket(uint128 _marketIdLaursia) public onlyMarketManager(){
         marketsExists[_marketIdLaursia] = true;
         markets[_marketIdLaursia].marketStatus = MarketStatus.ACTIVE;
+        emit OpenMarket(_marketIdLaursia);
     }    
 
     /**
      * @dev Suspende un mercado
      * @param _marketIdLaursia Id en Laurasia
      */
-    function suspendMarket(uint128 _marketIdLaursia) public onlyMarketManager(){
-        if (marketsExists[_marketIdLaursia])
-            markets[_marketIdLaursia].marketStatus = MarketStatus.SUSPENDED;
+    function suspendMarket(uint128 _marketIdLaursia) public onlyMarketManager() 
+                        activeMarket(_marketIdLaursia){
+        markets[_marketIdLaursia].marketStatus = MarketStatus.SUSPENDED;
+        emit SuspendedMarket(_marketIdLaursia); 
     }    
 
     /**
      * @dev Cierra un mercado
      * @param _marketIdLaursia Id en Laurasia
      */
-    function closeMarket(uint128 _marketIdLaursia) public onlyMarketManager(){
-        if (marketsExists[_marketIdLaursia])
-            markets[_marketIdLaursia].marketStatus = MarketStatus.CLOSED;   
-    }  
+    function closeMarket(uint128 _marketIdLaursia) public onlyMarketManager() 
+                        activeOrSupendedMarket(_marketIdLaursia){
+        markets[_marketIdLaursia].marketStatus = MarketStatus.CLOSED;   
+        emit ClosedMarket(_marketIdLaursia);
+    }
 }    
