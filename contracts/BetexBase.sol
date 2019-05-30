@@ -1,7 +1,6 @@
     pragma solidity >= 0.5.0;
     import "./BetexAdmin.sol";
-    import "./math/SafeMath.sol";
-
+    import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 /**
  * @title BetexBase
  * @dev Este contrato define los métodos internos para los métodos y servicios 
@@ -15,8 +14,8 @@
         event SolvedBackBets(uint128 marketId);
         event SolvedLayBets(uint128 marketId);
 
-        enum BetType        { BACK, LAY }                                       
-        enum BetStatus      { OPEN, PARTIALLY_MATCHED, FULL_MATCHED, CLOSED }   
+        enum BetType        { BACK, LAY }
+        enum BetStatus      { OPEN, PARTIALLY_MATCHED, FULL_MATCHED, CLOSED }
 
         struct Bet{
             uint128 marketId;       //Clave del mercado. ID Laurasia
