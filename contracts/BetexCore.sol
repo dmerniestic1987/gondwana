@@ -9,7 +9,6 @@ import "./BetexBase.sol";
 contract BetexCore is BetexBase{
 
     constructor() public {
-        owner = msg.sender;
         marketManagerAddress = msg.sender;
         cfoAddress = msg.sender;
         minimumStake = 0.01 ether;
@@ -17,7 +16,7 @@ contract BetexCore is BetexBase{
         gain = 0;
         //Creamos el mercado y la apuesta génesis
         openMarket(0);
-        _createBet(0, 0, 1, BetType.BACK, 0, 0, BetStatus.CLOSED); 
+        _createBet(0, 0, 1, BetType.BACK, 0, 0, BetStatus.CLOSED);
     }
 
     /**
@@ -32,7 +31,7 @@ contract BetexCore is BetexBase{
                                                       , uint matchedStake
                                                       , BetType betType
                                                       , BetStatus betStatus ){
-        require(_betId < bets.length, "El Id no existe");    
+        require(_betId < bets.length, "El Id no existe");
         Bet memory bet = bets[_betId];
         marketId = bet.marketId;
         runnerId = bet.runnerId;

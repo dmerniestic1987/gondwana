@@ -1,5 +1,5 @@
 pragma solidity >= 0.5.0;
-import "./Ownable.sol";
+import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 
 /**
  * @title BetexAccessControl
@@ -40,7 +40,7 @@ contract BetexAccessControl is Ownable{
     * @param _cfo Dirección del CFO
     */
     function setCFO(address _cfo) external onlyOwner{
-        require(_cfo != owner, ADDRESS_NOT_OWNER);
+        require(_cfo != owner(), ADDRESS_NOT_OWNER);
         address oldCfo = cfoAddress;
         cfoAddress = _cfo;
         emit SettedCFO(oldCfo, cfoAddress);
@@ -51,7 +51,7 @@ contract BetexAccessControl is Ownable{
     * @param _marketManager Dirección del Market Manager
     */
     function setMarketManager(address _marketManager) external onlyOwner{
-        require(_marketManager != owner, ADDRESS_NOT_OWNER);
+        require(_marketManager != owner(), ADDRESS_NOT_OWNER);
         address oldManagerAddress = marketManagerAddress;
         marketManagerAddress = _marketManager;
 

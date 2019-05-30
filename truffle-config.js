@@ -4,7 +4,7 @@ const mnemonic = "fantasy when hunt absent tide false kiwi combine strike brain 
 module.exports = {
   compilers: {
     solc: {
-      version: '0.5.8',
+      version: '0.5.0',
       settings: {
         optimizer: {
           enabled: true,
