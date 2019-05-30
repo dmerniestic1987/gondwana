@@ -18,7 +18,9 @@ contract BetexCore is BetexBase{
         openMarket(0);
         _createBet(0, 0, 1, BetType.BACK, 0, 0, BetStatus.CLOSED);
     }
-
+    function getMensajeHola() public pure returns(string memory){
+        return "Hola";
+    }
     /**
     * @dev Obtiene la información de una puesta determinada
     * @param _betId Id de la apuesta en la cadena de bloques

@@ -13,8 +13,8 @@
     "truffle-test": "./node_modules/truffle/build/cli.bundled.js test",
     "truffle-compile": "./node_modules/.bin/truffle compile --all",
     "truffle-migrate-dev": "rm -r build; ./node_modules/.bin/truffle migrate --network development --reset",
-    "truffle-migrate-rinkeby": "rm -r build; ./node_modules/.bin/truffle migrate --network rinkeby --reset",
-    "truffle-migrate-ropsten": "rm -r build; ./node_modules/.bin/truffle migrate --network ropsten --reset",
+    "truffle-migrate-rinkeby": "./node_modules/.bin/truffle migrate --network rinkeby --reset",
+    "truffle-migrate-ropsten": "./node_modules/.bin/truffle migrate --network ropsten --reset",
     "ganache-cli": "scripts/ganache.sh",
     "test": "scripts/test.sh",
     "solium": "node node_modules/ethlint/bin/solium -d contracts/"

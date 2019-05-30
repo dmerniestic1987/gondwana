@@ -1,0 +1,101 @@
+Compiling your contracts...
+===========================
+> Everything is up to date, there is nothing to compile.
+
+
+Starting migrations...
+======================
+> Network name:    'rinkeby'
+> Network id:      4
+> Block gas limit: 0x6acfc0
+
+
+1_initial_migration.js
+======================
+
+   Deploying 'Migrations'
+   ----------------------
+   > transaction hash:    0xec099be4bf8deb6884ff055d795a7098739dcb90b38365c07251a4dbd83c04d7
+   > Blocks: 0            Seconds: 13
+   > contract address:    0x96224752aCc028f60E0f503D1Af71D07faFf625f
+   > block number:        4470134
+   > block timestamp:     1559181659
+   > account:             0xf12a2f2C500194f9780199E9fc2503AfF856d4db
+   > balance:             11.065884846
+   > gas used:            202045
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.0040409 ETH
+
+   Pausing for 2 confirmations...
+   ------------------------------
+   > confirmation number: 1 (block: 4470135)
+   > confirmation number: 2 (block: 4470136)
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:           0.0040409 ETH
+
+
+2_initial_migration.js
+======================
+
+   Deploying 'VersusMatches'
+   -------------------------
+   > transaction hash:    0x5700bf3e208fda9b5e9208a3a47120b931cd0eb4f65ac6e3b56dd3ae7af187ba
+   > Blocks: 1            Seconds: 9
+   > contract address:    0xe102dAB5404Dd8C17ff7f7853330C08f43D1F0Ba
+   > block number:        4470138
+   > block timestamp:     1559181719
+   > account:             0xf12a2f2C500194f9780199E9fc2503AfF856d4db
+   > balance:             11.039494746
+   > gas used:            1277438
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.02554876 ETH
+
+   Pausing for 2 confirmations...
+   ------------------------------
+   > confirmation number: 1 (block: 4470139)
+   > confirmation number: 2 (block: 4470140)
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:          0.02554876 ETH
+
+
+3_initial_migration.js
+======================
+Esto lo estoy haciendo volaaaar
+
+   Deploying 'BetexCore'
+   ---------------------
+   > transaction hash:    0x870416a29ce77cbb2790f5fb32a978e671dce1b0bc815039df18d7ad6998f041
+   > Blocks: 1            Seconds: 9
+   > contract address:    0x9090bAF75c678B6e4E6479E529bfFd2Ec2133d73
+   > block number:        4470142
+   > block timestamp:     1559181779
+   > account:             0xf12a2f2C500194f9780199E9fc2503AfF856d4db
+   > balance:             10.964946066
+   > gas used:            3700367
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.07400734 ETH
+
+   Pausing for 2 confirmations...
+   ------------------------------
+   > confirmation number: 1 (block: 4470143)
+   > confirmation number: 2 (block: 4470144)
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:          0.07400734 ETH
+
+
+Summary
+=======
+> Total deployments:   3
+> Final cost:          0.103597 ETH
