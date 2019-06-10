@@ -17,6 +17,7 @@
     "truffle-migrate-ropsten": "./node_modules/.bin/truffle migrate --network ropsten --reset",
     "ganache-cli": "scripts/ganache.sh",
     "test": "scripts/test.sh",
+    "gen-java": "rm -r build; ./node_modules/.bin/truffle compile --all; scripts/gen_java_classes.sh",
     "solium": "node node_modules/ethlint/bin/solium -d contracts/"
   },
   "repository": {
