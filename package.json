@@ -1,0 +1,63 @@
+{
+  "name": "betex-gondwana",
+  "version": "0.0.2",
+  "private": true,
+  "homepage": "https://github.com/dmerniestic1987/gondwana",
+  "description": "Betex Gondwana",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "unit-test": "mocha test/unit/",
+    "truffle-test": "./node_modules/truffle/build/cli.bundled.js test",
+    "truffle-compile": "./node_modules/.bin/truffle compile --all",
+    "truffle-migrate-dev": "rm -r build; ./node_modules/.bin/truffle migrate --network development --reset",
+    "truffle-migrate-rinkeby": "./node_modules/.bin/truffle migrate --network rinkeby --reset",
+    "truffle-migrate-ropsten": "./node_modules/.bin/truffle migrate --network ropsten --reset",
+    "ganache-cli": "scripts/ganache.sh",
+    "test": "scripts/test.sh",
+    "gen-java": "rm -r build; ./node_modules/.bin/truffle compile --all; scripts/gen_java_classes.sh",
+    "solium": "node node_modules/ethlint/bin/solium -d contracts/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dmerniestic1987/gondwana.git"
+  },
+  "keywords": [
+    "bet",
+    "betting",
+    "sport",
+    "BTX",
+    "solidy",
+    "ethereum"
+  ],
+  "author": "Betex Technologies",
+  "dependencies": {},
+  "devDependencies": {
+    "abi-decoder": "1.2.0",
+    "babel-eslint": "10.0.1",
+    "bignumber.js": "9.0.0",
+    "bn-chai": "1.0.1",
+    "chai": "4.2.0",
+    "chai-bn": "0.1.1",
+    "eslint": "5.16.0",
+    "eslint-config-airbnb": "17.1.0",
+    "eslint-config-prettier": "4.3.0",
+    "eslint-plugin-flowtype": "3.9.0",
+    "eslint-plugin-import": "2.17.2",
+    "eslint-plugin-jsx-a11y": "6.2.1",
+    "eslint-plugin-prettier": "3.1.0",
+    "eslint-plugin-promise": "4.1.1",
+    "ethlint": "1.2.4",
+    "ganache-cli": "6.4.3",
+    "mocha": "6.1.4",
+    "openzeppelin-solidity": "2.3.0",
+    "openzeppelin-test-helpers": "0.4.0",
+    "prettier": "1.17.1",
+    "solc": "0.5.8",
+    "truffle": "5.0.19",
+    "truffle-hdwallet-provider": "1.0.9",
+    "web3": "1.0.0-beta.55"
+  }
+}

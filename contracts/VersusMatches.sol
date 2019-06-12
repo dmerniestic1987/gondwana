@@ -1,5 +1,5 @@
 pragma solidity >= 0.5.0;
-import "./Ownable.sol";
+import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 
 /**
  * @title Ownable
