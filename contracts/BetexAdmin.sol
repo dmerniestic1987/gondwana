@@ -119,6 +119,15 @@ contract BetexAdmin is BetexAccessControl{
     }    
 
     /**
+     * @dev Verifica si el mercado existe
+     * @param _marketIdLaursia Id en Laurasia
+     * @return true si existe, false de lo contrario
+     */
+    function marketExists(uint128 _marketIdLaursia) public view returns(bool){
+        return marketsExists[_marketIdLaursia];
+    }
+
+    /**
      * @dev Suspende un mercado
      * @param _marketIdLaursia Id en Laurasia
      */

@@ -33,7 +33,10 @@
     "ethereum"
   ],
   "author": "Betex Technologies",
-  "dependencies": {},
+  "dependencies": {
+    "truffle-assertions": "^0.9.1",
+    "truffle-test-utils": "^0.1.0"
+  },
   "devDependencies": {
     "abi-decoder": "1.2.0",
     "babel-eslint": "10.0.1",

@@ -39,10 +39,11 @@ contract BetexAccessControl is Ownable{
     * @dev Setea a un nuevo CFO.
     * @param _cfo Dirección del CFO
     */
-    function setCFO(address _cfo) external onlyOwner{
+    function setCFO(address _cfo) external onlyOwner() {
         require(_cfo != owner(), ADDRESS_NOT_OWNER);
         address oldCfo = cfoAddress;
         cfoAddress = _cfo;
+    
         emit SettedCFO(oldCfo, cfoAddress);
     }
     
@@ -50,7 +51,7 @@ contract BetexAccessControl is Ownable{
     * @dev Setea a un nuevo administrador de mercado de apuuestas.
     * @param _marketManager Dirección del Market Manager
     */
-    function setMarketManager(address _marketManager) external onlyOwner{
+    function setMarketManager(address _marketManager) external onlyOwner() {
         require(_marketManager != owner(), ADDRESS_NOT_OWNER);
         address oldManagerAddress = marketManagerAddress;
         marketManagerAddress = _marketManager;
