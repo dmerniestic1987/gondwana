@@ -1,7 +1,8 @@
 pragma solidity 0.5.2;
 
 /**
- * @dev Intefaz que permite 
+ * @dev Es la interfaz entre BetexMobile y Gondwana. Define las funciones
+ * para realizar apuestas de mercado y P2P.
  */
 interface IBetexMobileGondwana {
     /**
@@ -68,6 +69,7 @@ interface IBetexMobileGondwana {
 
     /**
      * @dev Acepta una apuesta P2P(directa) que esté abierta
+     * @param _betId hashId
      * @param _amountWei hashId
      */
     function acceptP2PBet(uint256 _betId, uint256 _amountWei) external;
@@ -77,4 +79,16 @@ interface IBetexMobileGondwana {
      * @param _betId _betId
      */
     function cancelP2PBet(uint256 _betId) external;
+
+    /**
+     * @dev Acepta una apuesta P2P(directa) que esté abierta
+     * @param _betId hashId
+     */
+    function refuseP2PBet(uint256 _betId) external;
+
+    /**
+     * @dev Cobra una apuesta P2P(directa) que esté cerrada y ganada
+     * @param _betId
+     */
+    function chargeP2PBet(uint256 _betId) external;
 }
