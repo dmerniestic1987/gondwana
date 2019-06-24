@@ -1,17 +1,17 @@
-const BetexAdmin = artifacts.require("BetexAdmin");
+const BetexAuthorization = artifacts.require("BetexAuthorization");
 const assert = require("chai").assert;
 const truffleAssert = require('truffle-assertions');
 
-contract("BetexAdmin", async accounts => {
-    let betexAdmin;
+contract("BetexAuthorization", async accounts => {
+    let betexAuthorization;
     const owner = accounts[0];
     const marketManager = accounts[1];
-    const cfo = accounts[2];
+    const cto = accounts[2];
 
     before(async() => {
-        betexAdmin = await BetexAdmin.new();
-        await betexAdmin.setMarketManager(marketManager, {from: owner});    
-        await betexAdmin.setCFO(cfo, {from: owner});
+        betexAuthorization = await BetexAuthorization.new();
+        await betexAuthorization.setMarketManager(marketManager, {from: owner});    
+        await betexAuthorization.setCTO(cto, {from: owner});
     });
     
     var newMarketId;

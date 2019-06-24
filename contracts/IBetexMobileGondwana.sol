@@ -36,13 +36,13 @@ interface IBetexMobileGondwana {
 
     /**
      * @dev Cancela una apuesta de mercado. Tiene asociado un costo de comisión
-     * @param _betId in btx
+     * @param _betId id of bet
      */
     function cancelMarketBet(uint256 _betId) external;
 
     /**
      * @dev Cobra una apuesta ganadora. Tiene asociado un costo de comisión
-     * @param _betId in btx
+     * @param _betId id of bet
      */
     function chargeMarketBet(uint256 _betId) external;
 
@@ -69,26 +69,26 @@ interface IBetexMobileGondwana {
 
     /**
      * @dev Acepta una apuesta P2P(directa) que esté abierta
-     * @param _betId hashId
+     * @param _betId id of bet
      * @param _amountWei hashId
      */
     function acceptP2PBet(uint256 _betId, uint256 _amountWei) external;
 
     /**
      * @dev Cancela una apuesta P2P(directa) que esté abierta. Se cobra una comisión.
-     * @param _betId _betId
+     * @param _betId id of bet
      */
     function cancelP2PBet(uint256 _betId) external;
 
     /**
      * @dev Acepta una apuesta P2P(directa) que esté abierta
-     * @param _betId hashId
+     * @param _betId id of bet
      */
     function refuseP2PBet(uint256 _betId) external;
 
     /**
      * @dev Cobra una apuesta P2P(directa) que esté cerrada y ganada
-     * @param _betId
+     * @param _betId id de apueta
      */
     function chargeP2PBet(uint256 _betId) external;
 }

@@ -1,13 +1,13 @@
-var BetexCore = artifacts.require("./BetexCore.sol");
-//var VersusMatches = artifacts.require("./VersusMatches.sol");
+var BetexSelfExcluded = artifacts.require("./BetexSelfExcluded.sol");
 var BetexToken = artifacts.require("./BetexToken.sol");
-//var BetexExchange = artifacts.require("./BetexExchange.sol");
+var BetexSettings = artifacts.require("./BetexSettings.sol");
 
-module.exports = function(deployer) {
-  deployContracts(deployer);
+module.exports = async function(deployer) {
+  console.log(deployer);
+  const betexSettings = await deployer.deploy(BetexSettings);
+  console.log(betexSettings);
+  const betexToken = await deployer.deploy(BetexToken);
+  console.log(betexToken);
+  const betexSelfExcluded = await deployer.deploy(BetexSelfExcluded);
+  console.log(betexSelfExcluded);
 };
-
-deployContracts = deployer => {
-  deployer.deploy(BetexCore);
-  deployer.deploy(BetexToken);
-}

@@ -9,7 +9,7 @@ contract BetexSelfExcluded {
     /**
      * @dev Agrega a un address determinado a la lista de autoexcluídos
      */
-    function selfExclude() external{
+    function selfExclude() external {
         selfExcluded[msg.sender] = true;
     }
 
