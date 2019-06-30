@@ -13,6 +13,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 contract BetexAuthorization is Ownable {
     address private marketManagerAddress;
     address private ctoAddress;
+
     mapping(address => bool) private whitelist;
     bool internal initialized;
 
@@ -20,7 +21,7 @@ contract BetexAuthorization is Ownable {
     event SettedMarketManager(address newAddress);
     event RemovedFromWitheList(address removedAddress);
     event AddedToList(address removedAddress);
-
+    
     /**
      * @dev Sólo puede ser initializado una vez
      */
@@ -55,7 +56,7 @@ contract BetexAuthorization is Ownable {
     * @param _cto Dirección del CTO
     */
     function setCTO(address _cto) external onlyOwner() {
-        require(_cto != owner(), "You are not allowed");
+        require(_cto != owner(), "Onwer must not be CTO");
         ctoAddress = _cto;    
         emit SettedCTO(ctoAddress);
     }
@@ -65,7 +66,7 @@ contract BetexAuthorization is Ownable {
     * @param _marketManager Dirección del Market Manager
     */
     function setMarketManager(address _marketManager) external onlyOwner() {
-        require(_marketManager != owner(), "You are not allowed");
+        require(_marketManager != owner(), "Onwer must not be MarketManager");
         marketManagerAddress = _marketManager;
 
         emit SettedMarketManager(marketManagerAddress);

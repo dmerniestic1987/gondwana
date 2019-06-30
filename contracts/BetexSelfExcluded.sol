@@ -1,9 +1,10 @@
 pragma solidity 0.5.2;
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 /**
  * @dev Permite a los usuarios autoexcluirse de la plataforma Betex
  */
-contract BetexSelfExcluded {
+contract BetexSelfExcluded  is Ownable {
     mapping(address => bool) internal selfExcluded;
 
     /**

@@ -2,7 +2,8 @@ const BetexAuthorization = artifacts.require('BetexAuthorization');
 const assert = require('chai').assert;
 const truffleAssert = require('truffle-assertions');
 const OWNABLE_MSG_ERROR = 'Ownable: caller is not the owner';
-
+const OWNER_NOT_CTO_MSG_ERROR = 'Onwer must not be CTO';
+const OWNER_NOT_MARKET_MANAGER_MSG_ERROR = 'Onwer must not be MarketManager';
 contract('BetexAuthorization', async accounts => {
     let betexAuthorization;
     const owner = accounts[0];
@@ -25,6 +26,15 @@ contract('BetexAuthorization', async accounts => {
         it('THEN El evento de nuevo mercado se debe disparar', async () => {            
             truffleAssert.eventEmitted(tx, 'SettedMarketManager', (ev) => {
                 return ev.newAddress == marketManager;
+            });
+        });
+        describe('AND el onwer intenta setearse a sí mismo como marketManager', async() => {
+            it('THEN setMarketManager debe fallar', async () => {
+                marketManager
+                await truffleAssert.reverts(
+                     betexAuthorization.setMarketManager(owner, {from: owner}),
+                     OWNER_NOT_MARKET_MANAGER_MSG_ERROR
+                );
             });
         });
     });
@@ -51,6 +61,15 @@ contract('BetexAuthorization', async accounts => {
         it('THEN El evento de nuevo mercado se debe disparar', async () => {            
             truffleAssert.eventEmitted(tx, 'SettedCTO', (ev) => {
                 return ev.newAddress == cto;
+            });
+        });
+        describe('AND el onwer intenta setearse a sí mismo como CTO', async() => {
+            it('THEN setCTO debe fallar', async () => {
+                marketManager
+                await truffleAssert.reverts(
+                     betexAuthorization.setCTO(owner, {from: owner}),
+                     OWNER_NOT_CTO_MSG_ERROR
+                );
             });
         });
     });
