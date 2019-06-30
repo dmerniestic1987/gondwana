@@ -6,7 +6,13 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
  */
 contract BetexSelfExcluded  is Ownable {
     mapping(address => bool) internal selfExcluded;
-
+    
+    event SettedCTO(address newAddress);
+    
+    constructor() public {
+        //El owner no puede apostar
+        selfExcluded[owner()] = true;
+    }
     /**
      * @dev Agrega a un address determinado a la lista de autoexcluídos
      */
