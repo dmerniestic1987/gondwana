@@ -10,7 +10,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
  *      - Owner: Es el dueño del contrato, en este caso el de BETEX.
  */
  //TODO: 30/06/2018 Los seteos críticos deberían hacerse a través de contratos de votación
-contract BetexAuthorization is Ownable{
+contract BetexAuthorization is Ownable {
     address private marketManagerAddress;
     address private ctoAddress;
     mapping(address => bool) private whitelist;
@@ -101,8 +101,7 @@ contract BetexAuthorization is Ownable{
      * @dev Agrega a un address determinado a la whitelist
      * @param _address Dirección en la que se puede confiar
      */
-     //TODO 23/06/2019: VERIFICAR COMO PODEMOS MEJORAR EL OWNERSHIP PARA QUE NO METAN CUALQUIERA LA WHITELIST
-    function addToWhiteList(address _address) external onlyOwner() {
+    function addToWhiteList(address _address) internal {
         require(!whitelist[_address], "Already withelisted");
         whitelist[_address] = true;
         emit AddedToList(_address);

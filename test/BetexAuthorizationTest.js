@@ -6,7 +6,7 @@ const OWNABLE_MSG_ERROR = 'Ownable: caller is not the owner';
 contract('BetexAuthorization', async accounts => {
     let betexAuthorization;
     const owner = accounts[0];
-    const marketManager = accounts[2];
+    const marketManager = accounts[1];
     const cto = accounts[2];
 
     before(async() => {
