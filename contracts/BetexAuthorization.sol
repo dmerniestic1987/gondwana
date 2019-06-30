@@ -5,20 +5,22 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
  * @title BetexAuthorization
  * @dev Este contrato permite definir los roles específicos de las personas para 
  *      restringir el acceso a ciertas funcionalidades. Los roles son: 
- *      - CTO: Chief Finantial Officer: El resposable de administrar los fondos. 
+ *      - CTO: Chief Technology Officer: El resposable algunos aspectos técnicos de Betex
  *      - MarketManager: El encagado de administrar los mercados de apuestas.
- *      - Owner: Es el dueño del contrato, en este caso el de BETEX. Respeta el contrato Ownable
+ *      - Owner: Es el dueño del contrato, en este caso el de BETEX.
  */
+ //TODO: 30/06/2018 Los seteos críticos deberían hacerse a través de contratos de votación
 contract BetexAuthorization is Ownable{
     address private marketManagerAddress;
     address private ctoAddress;
     mapping(address => bool) private whitelist;
     bool internal initialized;
 
-    event SettedCTO(address oldAddress, address newAddress);
-    event SettedMarketManager(address oldAddress, address newAddress);
+    event SettedCTO(address newAddress);
+    event SettedMarketManager(address newAddress);
     event RemovedFromWitheList(address removedAddress);
     event AddedToList(address removedAddress);
+
     /**
      * @dev Sólo puede ser initializado una vez
      */
@@ -54,10 +56,8 @@ contract BetexAuthorization is Ownable{
     */
     function setCTO(address _cto) external onlyOwner() {
         require(_cto != owner(), "You are not allowed");
-        address oldCto = ctoAddress;
-        ctoAddress = _cto;
-    
-        emit SettedCTO(oldCto, ctoAddress);
+        ctoAddress = _cto;    
+        emit SettedCTO(ctoAddress);
     }
     
    /**
@@ -66,10 +66,25 @@ contract BetexAuthorization is Ownable{
     */
     function setMarketManager(address _marketManager) external onlyOwner() {
         require(_marketManager != owner(), "You are not allowed");
-        address oldManagerAddress = marketManagerAddress;
         marketManagerAddress = _marketManager;
 
-        emit SettedMarketManager(oldManagerAddress, marketManagerAddress);
+        emit SettedMarketManager(marketManagerAddress);
+    }
+
+    /**
+     * @dev Obtiene la dirección seteada del market manager
+     * @return marketManagerAddress
+     */
+    function getMarketManager() external view onlyOwner() returns (address) {
+        return marketManagerAddress;
+    }
+
+    /**
+     * @dev Obtiene la dirección del CTO
+     * @return ctoAddress
+     */
+    function getCTO() external view onlyOwner() returns (address) {
+        return ctoAddress;
     }
 
     /**
