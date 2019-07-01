@@ -48,6 +48,7 @@ contract BetexSettings is BetexAuthorization {
     /**
      * @dev Obtiene la configuración de los usuarios. En caso de no haber una
      * devuleve los valores por default
+     * @param _userAddress dirección de un usuario
      * @return (maxAmountWeiPerDay, maxAmountBtxPerDay, maxBetsPerDay )
      */
     function getUserSettings(address _userAddress) public view onlyWhitelist() 
@@ -64,10 +65,18 @@ contract BetexSettings is BetexAuthorization {
     }
     /**
      * @dev Guarda la configuración del usuario determinado
+     * @param _userAddress dirección de un usuario
+     *  @param _maxAmountWeiPerDay máxima cantidad de apuestas de wei por día
+     * @param _maxAmountBtxPerDay máxima cantidad de apuestas de btx por día
+     * @param _maxBetsPerDay máxima cantidad de apuestas por día
      */
     function saveUserSettings( address _userAddress, uint256 _maxAmountWeiPerDay,
-                               uint256 _maxAmountBtxPerDay, uint256 _maxBetsPerDay) external onlyWhitelist() {
-        userSettings[_userAddress] = UserSettings(_maxAmountWeiPerDay, _maxAmountBtxPerDay, _maxBetsPerDay, true);                          
+                               uint256 _maxAmountBtxPerDay, uint256 _maxBetsPerDay) 
+                               external onlyWhitelist() {
+        userSettings[_userAddress] = UserSettings(_maxAmountWeiPerDay, 
+                                                  _maxAmountBtxPerDay, 
+                                                  _maxBetsPerDay, 
+                                                  true);                          
     }
 
     /**
@@ -209,5 +218,11 @@ contract BetexSettings is BetexAuthorization {
      */
     function setComissionCancelBetBtx(uint256 _comissionCancelBetBtx) external onlyWhitelist() {
         comissionCancelBetBtx = _comissionCancelBetBtx;
+    }
+
+    function init(address _betexMobileAddress, address _betexCoreAddress) 
+        onInitialize() onlyOwner() public {
+        addToWhiteList(_betexMobileAddress);
+        addToWhiteList(_betexCoreAddress);
     }
 }

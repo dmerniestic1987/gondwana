@@ -5,6 +5,7 @@ contract('BetexSelfExcluded', async accounts => {
     let betexSelfExcluded;
     const owner = accounts[0];
     const user = accounts[1];
+    const notExcluded = accounts[2];
 
     before(async() => {
         betexSelfExcluded = await BetexSelfExcluded.new();
@@ -22,6 +23,10 @@ contract('BetexSelfExcluded', async accounts => {
         it('THEN el owner figurar como selfExcluded', async () => {
             const isExcluded = await betexSelfExcluded.isSelfExcluded(owner);
             assert.isTrue(isExcluded, 'Owner no excluído');
+        });
+        it('THEN se verifica con un usuario no excluído', async () => {
+            const isExcluded = await betexSelfExcluded.isSelfExcluded(notExcluded);
+            assert.isFalse(isExcluded, 'Usuario ya está excluído');
         });
     });
 });
