@@ -20,6 +20,14 @@ interface IBetexMobileGondwana {
     function saveUserSettings(uint256 _amountWeiPerDay, uint256 _amountBtxPerDay, uint256 _maxBetsPerDay) external;
     
     /**
+     * @dev Obtiene la configuración del usuario determinado
+     * @return amountWeiPerDay máxima cantidad de apuestas de wei por día
+     * @return amountBtxPerDay máxima cantidad de apuestas de btx por día
+     * @return maxBetsPerDay máxima cantidad de apuestas por día
+     */
+    function getUserSettings() external view returns(uint256, uint256, uint256);
+    
+    /**
      * @dev El usuario se autoexcluye de la plataforma.
      */
     function selfExclude() external;

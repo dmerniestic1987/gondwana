@@ -43,7 +43,7 @@
     "bignumber.js": "9.0.0",
     "bn-chai": "1.0.1",
     "chai": "4.2.0",
-    "chai-bn": "0.1.1",
+    "chai-bn": "^0.1.1",
     "eslint": "5.16.0",
     "eslint-config-airbnb": "17.1.0",
     "eslint-config-prettier": "4.3.0",

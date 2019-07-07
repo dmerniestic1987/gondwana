@@ -124,6 +124,9 @@ contract BetexSettings is BetexAuthorization {
     function saveUserSettings( address _userAddress, uint256 _maxAmountWeiPerDay,
                                uint256 _maxAmountBtxPerDay, uint256 _maxBetsPerDay) 
                                external onlyWhitelist() {
+        require(_maxAmountWeiPerDay > minStakeWei, "Max wei amount can not bet lower than minStakeWei");
+        require(_maxAmountBtxPerDay > minStakeBtx, "Max btx amount can not bet lower than minStakeBtx");
+        require(_maxBetsPerDay > 0, "Max bet per days must be greater than 0");
         userSettings[_userAddress] = UserSettings(_maxAmountWeiPerDay, 
                                                   _maxAmountBtxPerDay, 
                                                   _maxBetsPerDay, 

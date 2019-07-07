@@ -15,13 +15,13 @@ module.exports = async function(deployer) {
   const betexCore = await deployer.deploy(BetexCore);
   
   const defaultValues = {
-    defaultMaxAmountWeiPerDay: web3.utils.toWei('100', 'ether'),
+    defaultMaxAmountWeiPerDay: web3.utils.toBN(web3.utils.toWei('100', 'ether')),
     defaultMaxAmountBtxPerDay: web3.utils.toBN(new BigNumber(10000 * PRECISION)),
     defaultMaxBetsPerDay: web3.utils.toBN(new BigNumber(1000)),
-    minStakeWei: web3.utils.toWei('0.01', 'ether'),
+    minStakeWei: web3.utils.toBN(web3.utils.toWei('0.01', 'ether')),
     minStakeBtx: web3.utils.toBN(new BigNumber(1 * PRECISION)),
     maxStakeBtx: web3.utils.toBN(new BigNumber(10000 * PRECISION)),
-    maxStakeWei: web3.utils.toWei('100', 'ether'),
+    maxStakeWei: web3.utils.toBN(web3.utils.toWei('100', 'ether')),
     comissionWinnerBetWei: web3.utils.toBN(new BigNumber(0.05 * PRECISION)),
     comissionCancelBetWei: web3.utils.toBN(new BigNumber(0.02 * PRECISION)),
     comissionWinnerBetBtx: web3.utils.toBN(new BigNumber(0.05 * PRECISION)),

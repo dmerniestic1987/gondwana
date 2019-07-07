@@ -35,6 +35,17 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
             _amountBtxPerDay,
             _maxBetsPerDay);      
     }
+
+    /**
+     * @dev Obtiene la configuración del usuario determinado
+     * @return amountWeiPerDay máxima cantidad de apuestas de wei por día
+     * @return amountBtxPerDay máxima cantidad de apuestas de btx por día
+     * @return maxBetsPerDay máxima cantidad de apuestas por día
+     */
+    function getUserSettings() external view returns(uint256, uint256, uint256){
+        return betexSettings.getUserSettings(msg.sender);
+    }
+
     /**
      * @dev El usuario se autoexcluye de la plataforma.
      */
