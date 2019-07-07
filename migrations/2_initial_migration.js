@@ -9,16 +9,10 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io
 
 module.exports = async function(deployer) {
   const PRECISION = 10 ** 18;
-  console.log(deployer);
   const betexToken = await deployer.deploy(BetexToken);
-  console.log(betexToken);
   const betexSelfExcluded = await deployer.deploy(BetexSelfExcluded);
-  console.log(betexSelfExcluded);
   const betexMobileGondwana = await deployer.deploy(BetexMobileGondwana);
-  console.log(betexMobileGondwana);
-
   const betexCore = await deployer.deploy(BetexCore);
-  console.log(betexCore);
   
   const defaultValues = {
     defaultMaxAmountWeiPerDay: web3.utils.toWei('100', 'ether'),
@@ -48,6 +42,5 @@ module.exports = async function(deployer) {
     defaultValues.comissionWinnerBetBtx,
     defaultValues.comissionCancelBetBtx);
 
-    console.log(betexSettings);
   await betexMobileGondwana.init(betexSettings.address);
 };
