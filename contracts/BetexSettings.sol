@@ -44,7 +44,7 @@ contract BetexSettings is BetexAuthorization {
     }
     
     mapping(address => UserSettings) public userSettings;
-
+    
     /**
      * @dev Obtiene la configuración de los usuarios. En caso de no haber una
      * devuleve los valores por default
@@ -62,21 +62,6 @@ contract BetexSettings is BetexAuthorization {
         return ( userSettings[_userAddress].maxAmountWeiPerDay, 
                  userSettings[_userAddress].maxAmountBtxPerDay, 
                  userSettings[_userAddress].maxBetsPerDay );
-    }
-    /**
-     * @dev Guarda la configuración del usuario determinado
-     * @param _userAddress dirección de un usuario
-     *  @param _maxAmountWeiPerDay máxima cantidad de apuestas de wei por día
-     * @param _maxAmountBtxPerDay máxima cantidad de apuestas de btx por día
-     * @param _maxBetsPerDay máxima cantidad de apuestas por día
-     */
-    function saveUserSettings( address _userAddress, uint256 _maxAmountWeiPerDay,
-                               uint256 _maxAmountBtxPerDay, uint256 _maxBetsPerDay) 
-                               external onlyWhitelist() {
-        userSettings[_userAddress] = UserSettings(_maxAmountWeiPerDay, 
-                                                  _maxAmountBtxPerDay, 
-                                                  _maxBetsPerDay, 
-                                                  true);                          
     }
 
     /**
@@ -125,6 +110,22 @@ contract BetexSettings is BetexAuthorization {
      */
     function getComissionCancelBetBtx() public view onlyWhitelist() returns(uint256) {
         return comissionCancelBetBtx;       
+    }
+
+    /**
+     * @dev Guarda la configuración del usuario determinado
+     * @param _userAddress dirección de un usuario
+     *  @param _maxAmountWeiPerDay máxima cantidad de apuestas de wei por día
+     * @param _maxAmountBtxPerDay máxima cantidad de apuestas de btx por día
+     * @param _maxBetsPerDay máxima cantidad de apuestas por día
+     */
+    function saveUserSettings( address _userAddress, uint256 _maxAmountWeiPerDay,
+                               uint256 _maxAmountBtxPerDay, uint256 _maxBetsPerDay) 
+                               external onlyWhitelist() {
+        userSettings[_userAddress] = UserSettings(_maxAmountWeiPerDay, 
+                                                  _maxAmountBtxPerDay, 
+                                                  _maxBetsPerDay, 
+                                                  true);                          
     }
 
     /**
@@ -220,8 +221,34 @@ contract BetexSettings is BetexAuthorization {
         comissionCancelBetBtx = _comissionCancelBetBtx;
     }
 
-    function init(address _betexMobileAddress, address _betexCoreAddress) 
+    /**
+     * @dev Inicializa el contrato y agrega a la lista blanca a betexMobile y betexCore
+     */
+    function init(address _betexMobileAddress, 
+        address _betexCoreAddress,
+        uint256 _defaultMaxAmountWeiPerDay,
+        uint256 _defaultMaxAmountBtxPerDay,
+        uint256 _defaultMaxBetsPerDay,
+        uint256 _minStakeWei,
+        uint256 _minStakeBtx,
+        uint256 _maxStakeBtx,
+        uint256 _maxStakeWei,
+        uint256 _comissionWinnerBetWei,
+        uint256 _comissionCancelBetWei,
+        uint256 _comissionWinnerBetBtx,
+        uint256 _comissionCancelBetBtx ) 
         onInitialize() onlyOwner() public {
+        defaultMaxAmountWeiPerDay = _defaultMaxAmountWeiPerDay;
+        defaultMaxAmountBtxPerDay = _defaultMaxAmountBtxPerDay;
+        defaultMaxBetsPerDay = _defaultMaxBetsPerDay;
+        minStakeWei = _minStakeWei;
+        minStakeBtx = _minStakeBtx;
+        maxStakeBtx = _maxStakeBtx;
+        maxStakeWei = _maxStakeWei;
+        comissionWinnerBetWei = _comissionWinnerBetWei;
+        comissionCancelBetWei = _comissionCancelBetWei;
+        comissionWinnerBetBtx = _comissionWinnerBetBtx;
+        comissionCancelBetBtx = _comissionCancelBetBtx;
         addToWhiteList(_betexMobileAddress);
         addToWhiteList(_betexCoreAddress);
     }
