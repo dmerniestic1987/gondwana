@@ -2,11 +2,14 @@ pragma solidity 0.5.2;
 
 import "./IBetexMobileGondwana.sol";
 import "./BetexAuthorization.sol";
+import "./BetexSettings.sol";
 
 /**
- * @dev 
+ * @dev Este contrato es el Proxy con el que el usuario de la aplicación 
+ * móvil puede comunicarse con la plataforma Betex. 
  */
 contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
+    BetexSettings private betexSettings;
    /**
      * @dev Verifica si el sistema está pausado.
      * @return true si está parado, false de lo contrario
@@ -109,4 +112,8 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
     function chargeP2PBet(uint256 _betId) external {
 
     }    
+
+    function init(address _betexSettings) onInitialize() onlyOwner() public {
+        betexSettings = BetexSettings(_betexSettings);
+    }
 }

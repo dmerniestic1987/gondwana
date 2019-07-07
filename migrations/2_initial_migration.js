@@ -1,4 +1,5 @@
 const Web3 = require('web3');
+const BigNumber = require('bignumber.js');
 var BetexSelfExcluded = artifacts.require("./BetexSelfExcluded.sol");
 var BetexToken = artifacts.require("./BetexToken.sol");
 var BetexSettings = artifacts.require("./BetexSettings.sol");
@@ -15,36 +16,38 @@ module.exports = async function(deployer) {
   console.log(betexSelfExcluded);
   const betexMobileGondwana = await deployer.deploy(BetexMobileGondwana);
   console.log(betexMobileGondwana);
+
   const betexCore = await deployer.deploy(BetexCore);
   console.log(betexCore);
   
   const defaultValues = {
     defaultMaxAmountWeiPerDay: web3.utils.toWei('100', 'ether'),
-    defaultMaxAmountBtxPerDay: 10000 * PRECISION,
-    defaultMaxBetsPerDay: 1000,
+    defaultMaxAmountBtxPerDay: web3.utils.toBN(new BigNumber(10000 * PRECISION)),
+    defaultMaxBetsPerDay: web3.utils.toBN(new BigNumber(1000)),
     minStakeWei: web3.utils.toWei('0.01', 'ether'),
-    minStakeBtx: 1 * PRECISION,
-    maxStakeBtx: 10000 * PRECISION,
+    minStakeBtx: web3.utils.toBN(new BigNumber(1 * PRECISION)),
+    maxStakeBtx: web3.utils.toBN(new BigNumber(10000 * PRECISION)),
     maxStakeWei: web3.utils.toWei('100', 'ether'),
-    comissionWinnerBetWei: 0.05 * PRECISION,
-    comissionCancelBetWei: 0.02 * PRECISION,
-    comissionWinnerBetBtx: 0.05 * PRECISION,
-    comissionCancelBetBtx: 0.02 * PRECISION    
+    comissionWinnerBetWei: web3.utils.toBN(new BigNumber(0.05 * PRECISION)),
+    comissionCancelBetWei: web3.utils.toBN(new BigNumber(0.02 * PRECISION)),
+    comissionWinnerBetBtx: web3.utils.toBN(new BigNumber(0.05 * PRECISION)),
+    comissionCancelBetBtx: web3.utils.toBN(new BigNumber(0.02 * PRECISION))
   }
 
   const betexSettings = await deployer.deploy(BetexSettings);
-  betexSettings.init(betexMobileGondwana, betexCore,     
-    defaultValues.defaultMaxAmountWeiPerDay.toString(), 
-    defaultValues.defaultMaxAmountBtxPerDay.toString(),
-    defaultValues.defaultMaxBetsPerDay.toString(),    
-    defaultValues.minStakeWei.toString(),
-    defaultValues.minStakeBtx.toString(),
-    defaultValues.maxStakeBtx.toString(),
-    defaultValues.maxStakeWei.toString(),
-    defaultValues.comissionWinnerBetWei.toString(),
-    defaultValues.comissionCancelBetWei.toString(),
-    defaultValues.comissionWinnerBetBtx.toString(),
-    defaultValues.comissionCancelBetBtx.toString());
- console.log(betexSettings);
+  await betexSettings.init(betexMobileGondwana.address, betexCore.address,     
+    defaultValues.defaultMaxAmountWeiPerDay, 
+    defaultValues.defaultMaxAmountBtxPerDay,
+    defaultValues.defaultMaxBetsPerDay,    
+    defaultValues.minStakeWei,
+    defaultValues.minStakeBtx,
+    defaultValues.maxStakeBtx,
+    defaultValues.maxStakeWei,
+    defaultValues.comissionWinnerBetWei,
+    defaultValues.comissionCancelBetWei,
+    defaultValues.comissionWinnerBetBtx,
+    defaultValues.comissionCancelBetBtx);
 
+    console.log(betexSettings);
+  await betexMobileGondwana.init(betexSettings.address);
 };
