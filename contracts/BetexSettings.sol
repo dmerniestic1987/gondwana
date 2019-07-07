@@ -117,7 +117,7 @@ contract BetexSettings is BetexAuthorization {
     /**
      * @dev Guarda la configuración del usuario determinado
      * @param _userAddress dirección de un usuario
-     *  @param _maxAmountWeiPerDay máxima cantidad de apuestas de wei por día
+     * @param _maxAmountWeiPerDay máxima cantidad de apuestas de wei por día
      * @param _maxAmountBtxPerDay máxima cantidad de apuestas de btx por día
      * @param _maxBetsPerDay máxima cantidad de apuestas por día
      */
