@@ -10,6 +10,7 @@ import "./BetexSettings.sol";
  */
 contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
     BetexSettings private betexSettings;
+    
    /**
      * @dev Verifica si el sistema está pausado.
      * @return true si está parado, false de lo contrario
@@ -18,30 +19,16 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
         return false;
     }
 
-    /**
-     * @dev Setea la máxima cantidad wei que se pueden apostar por día.
-     * @param _amount in wei
-     */
-    function setMaxAmountWeiPerDay(uint256 _amount) external {
-
+    function saveUserSettings(
+        uint256 _amountWeiPerDay,
+        uint256 _amountBtxPerDay, 
+        uint256 _maxBetsPerDay) external {
+        betexSettings.saveUserSettings(
+            msg.sender,
+            _amountWeiPerDay,
+            _amountBtxPerDay,
+            _maxBetsPerDay);      
     }
-
-    /**
-     * @dev Setea la máxima cantidad BTX que se pueden apostar por día.
-     * @param _amountBtx in btx
-     */
-    function setMaxAmountBtxPerDay(uint256 _amountBtx) external {
-
-    }
-
-    /**
-     * @dev Setea la máxima cantidad BTX que se pueden apostar por día.
-     * @param _maxBets in btx
-     */
-    function setMaxBetsPerDay(uint256 _maxBets) external {
-
-    }
-
     /**
      * @dev El usuario se autoexcluye de la plataforma.
      */

@@ -9,6 +9,8 @@ import "./BetexAuthorization.sol";
  * parámetros de configuración.
  */
 contract BetexSettings is BetexAuthorization {
+    event UserSettingsUpdate(uint256 amountWeiPerDay, uint256 amountBtxPerDay, uint256 maxBetsPerDay);
+
     //Valor por default del monto máximo en wei que se puede apostar a diario
     uint256 public defaultMaxAmountWeiPerDay;
     //Valor por default del monto máximo en btx que se puede apostar a diario
@@ -125,7 +127,8 @@ contract BetexSettings is BetexAuthorization {
         userSettings[_userAddress] = UserSettings(_maxAmountWeiPerDay, 
                                                   _maxAmountBtxPerDay, 
                                                   _maxBetsPerDay, 
-                                                  true);                          
+                                                  true);         
+        emit UserSettingsUpdate(_maxAmountWeiPerDay, _maxAmountBtxPerDay, _maxBetsPerDay);                                                           
     }
 
     /**
