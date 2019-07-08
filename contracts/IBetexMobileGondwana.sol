@@ -29,8 +29,9 @@ interface IBetexMobileGondwana {
     
     /**
      * @dev El usuario se autoexcluye de la plataforma.
+     * @return true si está autoexcluido
      */
-    function selfExclude() external;
+    function isSelfExcluded() external view returns(bool);
 
     /**
      * @dev Cancela una apuesta de mercado. Tiene asociado un costo de comisión

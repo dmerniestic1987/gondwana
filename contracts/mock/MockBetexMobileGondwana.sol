@@ -41,8 +41,8 @@ contract MockBetexMobileGondwana is IBetexMobileGondwana {
     /**
      * @dev El usuario se autoexcluye de la plataforma.
      */
-    function selfExclude() external {
-
+    function isSelfExcluded() external view returns(bool) {
+        return true;
     }
 
     /**

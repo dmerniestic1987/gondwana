@@ -12,6 +12,15 @@ import "./BetexSelfExcluded.sol";
 contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
     BetexSettings private betexSettings;
     BetexSelfExcluded private betexSelfExcluded;
+
+    /**
+     * @dev Sólo puede ser initializado una vez
+     */
+    modifier notSelfExcluded(address better) {
+        require(!betexSelfExcluded.isSelfExcluded(better), "Self excluded better");
+        _;
+    }
+
    /**
      * @dev Verifica si el sistema está pausado.
      * @return true si está parado, false de lo contrario
@@ -49,9 +58,10 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
 
     /**
      * @dev El usuario se autoexcluye de la plataforma.
+     * @return true si está autoexcluído, false de lo contrario
      */
-    function selfExclude() external {
-
+    function isSelfExcluded() external view returns(bool) {
+        return betexSelfExcluded.isSelfExcluded(msg.sender);
     }
 
     /**
@@ -84,7 +94,7 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
      * @param _marketRunnerHash sha3(eventId, marketId, runnerId)
      * @param _amountWei monto en wei
      */
-    function createP2PBetWei(bytes32 _marketRunnerHash, uint256 _amountWei) external {
+    function createP2PBetWei(bytes32 _marketRunnerHash, uint256 _amountWei) external notSelfExcluded(msg.sender) {
 
     }
 
@@ -93,7 +103,7 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
      * @param _marketRunnerHash hashId
      * @param _amountBtx monto en Btx
      */
-    function createP2PBetBtx(bytes32 _marketRunnerHash, uint256 _amountBtx) external {
+    function createP2PBetBtx(bytes32 _marketRunnerHash, uint256 _amountBtx) external notSelfExcluded(msg.sender) {
 
     }
 
@@ -102,7 +112,7 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
      * @param _betId id of bet
      * @param _amountWei hashId
      */
-    function acceptP2PBet(uint256 _betId, uint256 _amountWei) external {
+    function acceptP2PBet(uint256 _betId, uint256 _amountWei) external notSelfExcluded(msg.sender) {
 
     }
 

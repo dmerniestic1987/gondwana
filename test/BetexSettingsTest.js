@@ -4,7 +4,7 @@ const truffleAssert = require('truffle-assertions');
 const Web3 = require('web3');
 var BetexSettings = artifacts.require("./BetexSettings.sol");
 var BetexMobileGondwana = artifacts.require("./BetexMobileGondwana.sol");
-var BetexSelfExcluded = artifacts.require('BetexSelfExcluded');
+var BetexSelfExcluded = artifacts.require('BetexSelfExcluded.sol');
 var BetexCore = artifacts.require("./BetexCore.sol");
 const web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/a973f72655dc4760bfc81012fec47c86'))
 
