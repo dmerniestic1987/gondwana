@@ -3,6 +3,7 @@ pragma solidity 0.5.2;
 import "./IBetexMobileGondwana.sol";
 import "./BetexAuthorization.sol";
 import "./BetexSettings.sol";
+import "./BetexSelfExcluded.sol";
 
 /**
  * @dev Este contrato es el Proxy con el que el usuario de la aplicación 
@@ -10,7 +11,7 @@ import "./BetexSettings.sol";
  */
 contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
     BetexSettings private betexSettings;
-    
+    BetexSelfExcluded private betexSelfExcluded;
    /**
      * @dev Verifica si el sistema está pausado.
      * @return true si está parado, false de lo contrario
@@ -42,7 +43,7 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
      * @return amountBtxPerDay máxima cantidad de apuestas de btx por día
      * @return maxBetsPerDay máxima cantidad de apuestas por día
      */
-    function getUserSettings() external view returns(uint256, uint256, uint256){
+    function getUserSettings() external view returns(uint256, uint256, uint256) {
         return betexSettings.getUserSettings(msg.sender);
     }
 
@@ -117,7 +118,8 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
 
     }    
 
-    function init(address _betexSettings) onInitialize() onlyOwner() public {
+    function init(address _betexSettings, address _betexSelfExcluded) onInitialize() onlyOwner() public {
         betexSettings = BetexSettings(_betexSettings);
+        betexSelfExcluded = BetexSelfExcluded(_betexSelfExcluded);
     }
 }

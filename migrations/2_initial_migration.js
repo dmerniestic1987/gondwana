@@ -42,5 +42,5 @@ module.exports = async function(deployer) {
     defaultValues.comissionWinnerBetBtx,
     defaultValues.comissionCancelBetBtx);
 
-  await betexMobileGondwana.init(betexSettings.address);
+  await betexMobileGondwana.init(betexSettings.address, betexSelfExcluded.address);
 };

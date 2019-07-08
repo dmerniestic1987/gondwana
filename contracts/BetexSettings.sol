@@ -229,6 +229,18 @@ contract BetexSettings is BetexAuthorization {
 
     /**
      * @dev Inicializa el contrato y agrega a la lista blanca a betexMobile y betexCore
+     @param _betexCoreAddress - Dirección del contrato de Betex Core
+     @param _defaultMaxAmountWeiPerDay - Monto máximo de apuestas por día en Wei
+     @param _defaultMaxAmountBtxPerDay - Monto máximo de apuestas por día en BTX
+     @param _defaultMaxBetsPerDay - Cantidad máxima de apuestas por día
+     @param _minStakeWei - Monto mínimo que se puede apostar en Wei
+     @param _minStakeBtx - Monto mínimo que se puede apostar en BTX
+     @param _maxStakeBtx - Monto máximo que se puede apostar en BTX
+     @param _maxStakeWei - Monto máximo que se puede apostar en Wei
+     @param _comissionWinnerBetWei - Comisión que se le cobra a los ganadores en wei, entre 0 y 1
+     @param _comissionCancelBetWei - Comisión que se cobra por cancelar una apuesta en wei, entre 0 y 1
+     @param _comissionWinnerBetBtx - Comisión que se le cobra a los ganadores en btx, entre 0 y 1
+     @param _comissionCancelBetBtx - Comisión que se cobra por cancelar una apuesta en BTX, entre 0 y 1
      */
     function init(address _betexMobileAddress, 
         address _betexCoreAddress,
