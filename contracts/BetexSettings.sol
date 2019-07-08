@@ -65,6 +65,50 @@ contract BetexSettings is BetexAuthorization {
                  userSettings[_userAddress].maxAmountBtxPerDay, 
                  userSettings[_userAddress].maxBetsPerDay );
     }
+    
+    /**
+     * @dev Devuelve la cantidad máxima por defaul que los usuarios pueden apostar al día.
+     * El usuario puede guardar su propia configuración
+     * @return defaultMaxAmountWeiPerDay
+     */
+    function getDefaultMaxAmountWeiPerDay() external onlyWhitelist() returns (uint256)  {
+        return defaultMaxAmountWeiPerDay; 
+    }
+
+
+    /**
+     * @dev Devuelve la cantidad máxima por defaul que los usuarios puede apostar al día.
+     * El usuario puede guardar su propia configuración
+     * @return defaultMaxAmountBtxPerDay expresado en btx
+     */
+    function getDefaultMaxAmountBtxPerDay() external onlyWhitelist() returns (uint256) {
+        return defaultMaxAmountBtxPerDay; 
+    }
+
+    /**
+     * @dev Devuelve la cantidad máxima de apuestas per cápitla que los 
+     * usuarios pueden hacer al día. El usuario puede guardar su propia configuración
+     * @return defaultMaxBetsPerDay cantidad
+     */
+    function getDefaultMaxBetsPerDay() external onlyWhitelist() returns (uint256){
+        return defaultMaxBetsPerDay; 
+    }
+
+    /**
+     @dev Devuelve el monto mínimo de apuestas permitadas en btx.
+     @return minStakeBtx
+     */
+    function getMinStakeBtx() public view onlyWhitelist() returns(uint256) {
+        return minStakeBtx;       
+    }
+
+    /**
+     @dev Devuelve el monto máximo de apuestas permitadas en btx.
+     @return maxStakeBtx
+     */
+    function getMaxStakeBtx() public view onlyWhitelist() returns(uint256) {
+        return maxStakeBtx;       
+    }
 
     /**
      @dev Devuelve el monto mínimo de apuestas permitadas en wei.
@@ -139,7 +183,7 @@ contract BetexSettings is BetexAuthorization {
      * El usuario puede guardar su propia configuración
      * @param _amount expresado en wei
      */
-    function setDefaultMaxAmountWeiPerDay(uint256 _amount) external onlyWhitelist() {
+    function setDefaultMaxAmountWeiPerDay(uint256 _amount) external onlyOwner() {
         defaultMaxAmountWeiPerDay = _amount;
     }
 
@@ -149,7 +193,7 @@ contract BetexSettings is BetexAuthorization {
      * El usuario puede guardar su propia configuración
      * @param _amount expresado en btx
      */
-    function setDefaultMaxAmountBtxPerDay(uint256 _amount) external onlyWhitelist() {
+    function setDefaultMaxAmountBtxPerDay(uint256 _amount) external onlyOwner() {
         defaultMaxAmountBtxPerDay = _amount;
     }
 
@@ -158,7 +202,7 @@ contract BetexSettings is BetexAuthorization {
      * usuarios pueden hacer al día. El usuario puede guardar su propia configuración
      * @param _maxBetsPerDay cantidad
      */
-    function setDefaultMaxBetsPerDay(uint256 _maxBetsPerDay) external onlyWhitelist() {
+    function setDefaultMaxBetsPerDay(uint256 _maxBetsPerDay) external onlyOwner() {
         defaultMaxBetsPerDay = _maxBetsPerDay;
     }
 
@@ -166,7 +210,7 @@ contract BetexSettings is BetexAuthorization {
      * @dev Setea el monto mínimo que se aceptan por apuestas
      * @param _minStakeWei monto en wei
      */
-    function setMinStakeWei(uint256 _minStakeWei) external onlyWhitelist() {
+    function setMinStakeWei(uint256 _minStakeWei) external onlyOwner() {
         minStakeWei = _minStakeWei;
     }
 
@@ -174,7 +218,7 @@ contract BetexSettings is BetexAuthorization {
      * @dev Setea el monto mínimo que se aceptan por apuestas en btx
      * @param _minStakeBtx monto en btx
      */
-    function setMinStakeBtx(uint256 _minStakeBtx) external onlyWhitelist() {
+    function setMinStakeBtx(uint256 _minStakeBtx) external onlyOwner() {
         minStakeBtx = _minStakeBtx;
     }
 
@@ -183,7 +227,7 @@ contract BetexSettings is BetexAuthorization {
      * @dev Setea el monto máximo que se aceptan por apuestas
      * @param _maxStakeWei monto en wei
      */
-    function setMaxStakeWei(uint256 _maxStakeWei) external onlyWhitelist() {
+    function setMaxStakeWei(uint256 _maxStakeWei) external onlyOwner() {
         maxStakeWei = _maxStakeWei;
     }
 
@@ -191,7 +235,7 @@ contract BetexSettings is BetexAuthorization {
      * @dev Setea el monto máximo que se aceptan por apuestas en btx
      * @param _maxStakeBtx monto en btx
      */
-    function setMaxStakeBtx(uint256 _maxStakeBtx) external onlyWhitelist() {
+    function setMaxStakeBtx(uint256 _maxStakeBtx) external onlyOwner() {
         maxStakeBtx = _maxStakeBtx;
     }
 
@@ -199,7 +243,7 @@ contract BetexSettings is BetexAuthorization {
      * @dev Setea las comisiones que se cobran por apuestas, expresado en porcentaje
      * @param _comissionWinnerBetWei porcentaje entre 0 y 100
      */
-    function setComissionWinnerBetWei(uint256 _comissionWinnerBetWei) external onlyWhitelist() {
+    function setComissionWinnerBetWei(uint256 _comissionWinnerBetWei) external onlyOwner() {
         comissionWinnerBetWei = _comissionWinnerBetWei;
     }
 
@@ -207,7 +251,7 @@ contract BetexSettings is BetexAuthorization {
      * @dev Setea las comisiones que se cobran por cancelar apuestas en wei
      * @param _comissionCancelBetWei porcentaje entre 0 y 100
      */
-    function setComissionCancelBetWei(uint256 _comissionCancelBetWei) external onlyWhitelist() {
+    function setComissionCancelBetWei(uint256 _comissionCancelBetWei) external onlyOwner() {
         comissionCancelBetWei = _comissionCancelBetWei;
     }
 
@@ -215,7 +259,7 @@ contract BetexSettings is BetexAuthorization {
      * @dev Setea las comisiones que a los ganadores de apuestas en BTX
      * @param _comissionWinnerBetBtx porcentaje entre 0 y 100, con 18 dígitos de precisión
      */
-    function setComissionWinnerBetBtx(uint256 _comissionWinnerBetBtx) external onlyWhitelist() {
+    function setComissionWinnerBetBtx(uint256 _comissionWinnerBetBtx) external onlyOwner() {
         comissionWinnerBetBtx = _comissionWinnerBetBtx;
     }
 
@@ -223,7 +267,7 @@ contract BetexSettings is BetexAuthorization {
      * @dev Setea las comisiones que a los que cancelan apuestas en BTX
      * @param _comissionCancelBetBtx porcentaje entre 0 y 100, con 18 dígitos de precisión
      */
-    function setComissionCancelBetBtx(uint256 _comissionCancelBetBtx) external onlyWhitelist() {
+    function setComissionCancelBetBtx(uint256 _comissionCancelBetBtx) external onlyOwner() {
         comissionCancelBetBtx = _comissionCancelBetBtx;
     }
 

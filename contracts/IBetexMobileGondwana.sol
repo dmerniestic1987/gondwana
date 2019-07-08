@@ -90,4 +90,52 @@ interface IBetexMobileGondwana {
      * @param _betId id de apueta
      */
     function chargeP2PBet(uint256 _betId) external;
+    
+    /**
+     @dev Devuelve el monto mínimo de apuestas permitadas en BTX.
+     @return minStakeBtx
+     */
+    function getMinStakeBtx() external view returns(uint256);
+
+    /**
+     @dev Devuelve el monto máximo de apuestas permitadas en BTX.
+     @return maxStakeBtx
+     */
+    function getMaxStakeBtx() external view returns(uint256);
+
+    /**
+     @dev Devuelve el monto mínimo de apuestas permitadas en wei.
+     @return minStakeWei
+     */
+    function getMinStakeWei() external view returns(uint256);
+
+        /**
+     @dev Devuelve el monto máximo de apuestas permitadas en wei.
+     @return maxStakeWei
+     */
+    function getMaxStakeWei() external view returns(uint256);
+
+    /**
+     @dev Devuelve la información de las comisiones de los ganadores de apuestas en wei.
+     @return comissionWinnerBetWei
+     */
+    function getComissionWinnerBetWei() external view returns(uint256);
+
+    /**
+     @dev Devuelve la información de las comisiones por cancelación de apuetas en wei.
+     @return comissionCancelBetWei
+     */
+    function getComissionCancelBetWei() external view returns(uint256);
+
+        /**
+     @dev Devuelve la información de las comisiones a los ganadores en btx.
+     @return comissionWinnerBetBtx
+     */
+    function getComissionWinnerBetBtx() external view returns(uint256);
+
+    /**
+     @dev Devuelve la información de las comisiones a los ganadores en btx.
+     @return comissionCancelBetBtx
+     */
+    function getComissionCancelBetBtx() external view returns(uint256);
 }

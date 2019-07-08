@@ -10,8 +10,8 @@ import "./BetexSelfExcluded.sol";
  * móvil puede comunicarse con la plataforma Betex. 
  */
 contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
-    BetexSettings private betexSettings;
-    BetexSelfExcluded private betexSelfExcluded;
+    BetexSettings public betexSettings;
+    BetexSelfExcluded public betexSelfExcluded;
 
     /**
      * @dev Sólo puede ser initializado una vez
@@ -128,6 +128,70 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
 
     }    
 
+
+    /**
+     @dev Devuelve el monto mínimo de apuestas permitadas en wei.
+     @return minStakeWei
+     */
+    function getMinStakeWei() external view returns(uint256) {
+        return betexSettings.getMinStakeWei();
+    }
+
+        /**
+     @dev Devuelve el monto máximo de apuestas permitadas en wei.
+     @return maxStakeWei
+     */
+    function getMaxStakeWei() external view returns(uint256) {
+        return betexSettings.getMaxStakeWei();
+    }
+
+    /**
+     @dev Devuelve el monto mínimo de apuestas permitadas en BTX.
+     @return minStakeBtx
+     */
+    function getMinStakeBtx() external view returns(uint256){
+        return betexSettings.getMinStakeBtx();
+    }
+
+    /**
+     @dev Devuelve el monto máximo de apuestas permitadas en BTX.
+     @return maxStakeBtx
+     */
+    function getMaxStakeBtx() external view returns(uint256){
+        return betexSettings.getMaxStakeBtx();
+    }
+
+    /**
+     @dev Devuelve la información de las comisiones de los ganadores de apuestas en wei.
+     @return comissionWinnerBetWei
+     */
+    function getComissionWinnerBetWei() external view returns(uint256) {
+        return betexSettings.getComissionWinnerBetWei();
+    }
+
+    /**
+     @dev Devuelve la información de las comisiones por cancelación de apuetas en wei.
+     @return comissionCancelBetWei
+     */
+    function getComissionCancelBetWei() external view returns(uint256) {
+        return betexSettings.getComissionCancelBetWei();
+    }
+
+        /**
+     @dev Devuelve la información de las comisiones a los ganadores en btx.
+     @return comissionWinnerBetBtx
+     */
+    function getComissionWinnerBetBtx() external view returns(uint256) {
+        return betexSettings.getComissionWinnerBetBtx();
+    }
+
+    /**
+     @dev Devuelve la información de las comisiones a los ganadores en btx.
+     @return comissionCancelBetBtx
+     */
+    function getComissionCancelBetBtx() external view returns(uint256) {
+        return betexSettings.getComissionCancelBetBtx();
+    }
     /**
      * @dev Inicializa el contrato
      * @param _betexSettings Dirección del contrato de configuración
