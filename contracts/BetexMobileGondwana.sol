@@ -128,7 +128,13 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
 
     }    
 
-    function init(address _betexSettings, address _betexSelfExcluded) onInitialize() onlyOwner() public {
+    /**
+     * @dev Inicializa el contrato
+     * @param _betexSettings Dirección del contrato de configuración
+     * @param _betexSelfExcluded Dirección del contrato de autoexcluídos
+     */
+    function init(address _betexSettings, address _betexSelfExcluded) 
+        onInitialize() onlyOwner() public {
         betexSettings = BetexSettings(_betexSettings);
         betexSelfExcluded = BetexSelfExcluded(_betexSelfExcluded);
     }
