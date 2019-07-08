@@ -92,6 +92,28 @@ interface IBetexMobileGondwana {
     function chargeP2PBet(uint256 _betId) external;
     
     /**
+     * @dev Devuelve la cantidad máxima por defaul que los usuarios pueden apostar al día.
+     * El usuario puede guardar su propia configuración
+     * @return defaultMaxAmountWeiPerDay
+     */
+    function getDefaultMaxAmountWeiPerDay() external returns (uint256);
+
+
+    /**
+     * @dev Devuelve la cantidad máxima por defaul que los usuarios puede apostar al día.
+     * El usuario puede guardar su propia configuración
+     * @return defaultMaxAmountBtxPerDay expresado en btx
+     */
+    function getDefaultMaxAmountBtxPerDay() external returns (uint256);
+
+    /**
+     * @dev Devuelve la cantidad máxima de apuestas per cápitla que los 
+     * usuarios pueden hacer al día. El usuario puede guardar su propia configuración
+     * @return defaultMaxBetsPerDay cantidad
+     */
+    function getDefaultMaxBetsPerDay() external returns (uint256);
+
+    /**
      @dev Devuelve el monto mínimo de apuestas permitadas en BTX.
      @return minStakeBtx
      */
@@ -109,7 +131,7 @@ interface IBetexMobileGondwana {
      */
     function getMinStakeWei() external view returns(uint256);
 
-        /**
+    /**
      @dev Devuelve el monto máximo de apuestas permitadas en wei.
      @return maxStakeWei
      */
@@ -127,7 +149,7 @@ interface IBetexMobileGondwana {
      */
     function getComissionCancelBetWei() external view returns(uint256);
 
-        /**
+    /**
      @dev Devuelve la información de las comisiones a los ganadores en btx.
      @return comissionWinnerBetBtx
      */

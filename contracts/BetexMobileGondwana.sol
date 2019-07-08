@@ -128,6 +128,33 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
 
     }    
 
+        /**
+     * @dev Devuelve la cantidad máxima por defaul que los usuarios pueden apostar al día.
+     * El usuario puede guardar su propia configuración
+     * @return defaultMaxAmountWeiPerDay
+     */
+    function getDefaultMaxAmountWeiPerDay() external returns (uint256) {
+        return betexSettings.getDefaultMaxAmountWeiPerDay();
+    }
+
+
+    /**
+     * @dev Devuelve la cantidad máxima por defaul que los usuarios puede apostar al día.
+     * El usuario puede guardar su propia configuración
+     * @return defaultMaxAmountBtxPerDay expresado en btx
+     */
+    function getDefaultMaxAmountBtxPerDay() external returns (uint256) {
+        return betexSettings.getDefaultMaxAmountBtxPerDay();
+    }
+
+    /**
+     * @dev Devuelve la cantidad máxima de apuestas per cápitla que los 
+     * usuarios pueden hacer al día. El usuario puede guardar su propia configuración
+     * @return defaultMaxBetsPerDay cantidad
+     */
+    function getDefaultMaxBetsPerDay() external returns (uint256) {
+        return betexSettings.getDefaultMaxBetsPerDay();
+    }
 
     /**
      @dev Devuelve el monto mínimo de apuestas permitadas en wei.
