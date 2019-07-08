@@ -35,10 +35,7 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
      * @param _amountBtxPerDay máxima cantidad de apuestas de btx por día
      * @param _maxBetsPerDay máxima cantidad de apuestas por día
      */
-    function saveUserSettings(
-        uint256 _amountWeiPerDay,
-        uint256 _amountBtxPerDay, 
-        uint256 _maxBetsPerDay) external {
+    function saveUserSettings( uint256 _amountWeiPerDay, uint256 _amountBtxPerDay, uint256 _maxBetsPerDay) external {
         betexSettings.saveUserSettings(
             msg.sender,
             _amountWeiPerDay,
@@ -176,7 +173,7 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
      @dev Devuelve el monto mínimo de apuestas permitadas en BTX.
      @return minStakeBtx
      */
-    function getMinStakeBtx() external view returns(uint256){
+    function getMinStakeBtx() external view returns(uint256) {
         return betexSettings.getMinStakeBtx();
     }
 
@@ -184,7 +181,7 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
      @dev Devuelve el monto máximo de apuestas permitadas en BTX.
      @return maxStakeBtx
      */
-    function getMaxStakeBtx() external view returns(uint256){
+    function getMaxStakeBtx() external view returns(uint256) {
         return betexSettings.getMaxStakeBtx();
     }
 
@@ -224,8 +221,7 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
      * @param _betexSettings Dirección del contrato de configuración
      * @param _betexSelfExcluded Dirección del contrato de autoexcluídos
      */
-    function init(address _betexSettings, address _betexSelfExcluded) 
-        onInitialize() onlyOwner() public {
+    function init(address _betexSettings, address _betexSelfExcluded) onInitialize() onlyOwner() public {
         betexSettings = BetexSettings(_betexSettings);
         betexSelfExcluded = BetexSelfExcluded(_betexSelfExcluded);
     }
