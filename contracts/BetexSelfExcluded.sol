@@ -7,7 +7,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 contract BetexSelfExcluded  is Ownable {
     mapping(address => bool) internal selfExcluded;
     
-    event SettedCTO(address newAddress);
+    event SelfExcluded(address newAddress);
     
     constructor() public {
         //El owner no puede apostar
@@ -18,6 +18,7 @@ contract BetexSelfExcluded  is Ownable {
      */
     function selfExclude() external {
         selfExcluded[msg.sender] = true;
+        emit SelfExcluded(msg.sender);
     }
 
     /**
