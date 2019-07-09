@@ -7,5 +7,11 @@ import "./BetexSettings.sol";
  * calcular las comisiones para la resolución. 
  */
 contract BetexCore is BetexAuthorization {
-
+    BetexSettings public betexSettings;
+    
+    function init(address _betexMobileAddress, address _betexSetting ) 
+        onInitialize() onlyOwner() public {
+        betexSettings = BetexSettings(betexSettings);
+        addToWhiteList(_betexMobileAddress);
+    }
 }

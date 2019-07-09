@@ -62,6 +62,36 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
     }
 
     /**
+     * @dev Permite colocar apuestas en contra de algún equipo determinado
+     * @param _marketHash Hash del mercado
+     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
+     * @param _odd Cuota de apuesta
+     * @param _stake monto de la apuesta
+     */
+    function placeLayMarketBet(
+        bytes32 _marketHash, 
+        bytes32 _runnerHash, 
+        uint256 _odd, 
+        uint256 _stake) external {
+
+    }
+
+    /** 
+     * @dev Permite colocar apuestas en contra de algún equipo determinado
+     * @param _marketHash Hash del mercado
+     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
+     * @param _odd Cuota de apuesta
+     * @param _stake monto de la apuesta
+    */    
+    function placeBackMarketBet(
+        bytes32 _marketHash, 
+        bytes32 _runnerHash, 
+        uint256 _odd, 
+        uint256 _stake) external {
+
+    }
+
+    /**
      * @dev Cancela una apuesta de mercado. Tiene asociado un costo de comisión
      * @param _betId id of bet
      */
@@ -216,6 +246,16 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
     function getComissionCancelBetBtx() external view returns(uint256) {
         return betexSettings.getComissionCancelBetBtx();
     }
+
+    /**
+     * @dev verifica si una apuesta fue ganadora
+     * @param _betId id de apuesta
+     * @return true si ganó, false de lo contrario
+     */
+    function isWinner(uint256 _betId) external view returns (bool) {
+        return false;
+    }
+    
     /**
      * @dev Inicializa el contrato
      * @param _betexSettings Dirección del contrato de configuración

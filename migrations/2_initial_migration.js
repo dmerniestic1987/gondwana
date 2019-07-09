@@ -43,4 +43,6 @@ module.exports = async function(deployer) {
     defaultValues.comissionCancelBetBtx);
 
   await betexMobileGondwana.init(betexSettings.address, betexSelfExcluded.address);
+  
+  await betexCore.init(betexMobileGondwana.address, betexSettings.address);
 };

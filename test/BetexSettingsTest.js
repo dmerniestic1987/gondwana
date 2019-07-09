@@ -10,6 +10,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io
 
 const PRECISION = 10 ** 18;
 const NOT_ALLOWED_MSG_ERROR = 'Not allowed';
+const ONWABLE_MSG_ERROR = 'Ownable: caller is not the owner';
 const defaultValues = {
     defaultMaxAmountWeiPerDay: web3.utils.toBN(web3.utils.toWei('100', 'ether')),
     defaultMaxAmountBtxPerDay: web3.utils.toBN(new BigNumber(10000 * PRECISION)),
@@ -90,16 +91,10 @@ contract('BetexSettings', async accounts => {
         });
     });
     describe('GIVEN un address que no está en la white list', async () => {
-        describe('AND intenta configurar y setear parámetros sin permisos', async () => {
+        describe('AND intenta consultar los parámetros sin permisos', async () => {
             it('THEN la transacción debe revertear al llamar a getMinStakeWei', async () => {
                 await truffleAssert.reverts(
                     betexSettings.getMinStakeWei({from: owner}),
-                    NOT_ALLOWED_MSG_ERROR
-                );
-            });
-            it('THEN la transacción debe revertear al llamar a setMinStakeWei', async () => {
-                await truffleAssert.reverts(
-                    betexSettings.setMinStakeWei(1000, {from: owner}),
                     NOT_ALLOWED_MSG_ERROR
                 );
             });
@@ -109,21 +104,9 @@ contract('BetexSettings', async accounts => {
                     NOT_ALLOWED_MSG_ERROR
                 );
             });
-            it('THEN la transacción debe revertear al llamar a setMaxStakeWei', async () => {
-                await truffleAssert.reverts(
-                    betexSettings.setMaxStakeWei(1000, {from: owner}),
-                    NOT_ALLOWED_MSG_ERROR
-                );
-            });
             it('THEN la transacción debe revertear al llamar a getComissionWinnerBetWei', async () => {
                 await truffleAssert.reverts(
                     betexSettings.getComissionWinnerBetWei({from: owner}),
-                    NOT_ALLOWED_MSG_ERROR
-                );
-            });
-            it('THEN la transacción debe revertear al llamar a setComissionWinnerBetWei', async () => {
-                await truffleAssert.reverts(
-                    betexSettings.setComissionWinnerBetWei(1000, {from: owner}),
                     NOT_ALLOWED_MSG_ERROR
                 );
             });
@@ -133,12 +116,33 @@ contract('BetexSettings', async accounts => {
                     NOT_ALLOWED_MSG_ERROR
                 );
             });
-            it('THEN la transacción debe revertear al llamar a setComissionCancelBetWei', async () => {
+        });
+
+        describe('AND intenta configurar y setear parámetros sin permisos', async () => {
+            it('THEN la transacción debe revertear al llamar a setMinStakeWei', async () => {
                 await truffleAssert.reverts(
-                    betexSettings.setComissionCancelBetWei(1000, {from: owner}),
-                    NOT_ALLOWED_MSG_ERROR
+                    betexSettings.setMinStakeWei(1000, {from: other}),
+                    ONWABLE_MSG_ERROR
                 );
             });
-        });
+            it('THEN la transacción debe revertear al llamar a setMaxStakeWei', async () => {
+                await truffleAssert.reverts(
+                    betexSettings.setMaxStakeWei(1000, {from: other}),
+                    ONWABLE_MSG_ERROR
+                );
+            });
+            it('THEN la transacción debe revertear al llamar a setComissionWinnerBetWei', async () => {
+                await truffleAssert.reverts(
+                    betexSettings.setComissionWinnerBetWei(1000, {from: other}),
+                    ONWABLE_MSG_ERROR
+                );
+            });
+            it('THEN la transacción debe revertear al llamar a setComissionCancelBetWei', async () => {
+                await truffleAssert.reverts(
+                    betexSettings.setComissionCancelBetWei(1000, {from: other}),
+                    ONWABLE_MSG_ERROR
+                );
+            });
+        });        
     });
 });

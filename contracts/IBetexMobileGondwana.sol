@@ -40,6 +40,24 @@ interface IBetexMobileGondwana {
     function cancelMarketBet(uint256 _betId) external;
 
     /**
+     * @dev Permite colocar apuestas en contra de algún equipo determinado
+     * @param _marketHash Hash del mercado
+     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
+     * @param _odd Cuota de apuesta
+     * @param _stake monto de la apuesta
+     */
+    function placeLayMarketBet(bytes32 _marketHash, bytes32 _runnerHash, uint256 _odd, uint256 _stake) external;
+
+    /** 
+     * @dev Permite colocar apuestas en contra de algún equipo determinado
+     * @param _marketHash Hash del mercado
+     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
+     * @param _odd Cuota de apuesta
+     * @param _stake monto de la apuesta
+    */    
+    function placeBackMarketBet(bytes32 _marketHash, bytes32 _runnerHash, uint256 _odd, uint256 _stake) external;
+
+    /**
      * @dev Cobra una apuesta ganadora. Tiene asociado un costo de comisión
      * @param _betId id of bet
      */
@@ -90,6 +108,13 @@ interface IBetexMobileGondwana {
      * @param _betId id de apueta
      */
     function chargeP2PBet(uint256 _betId) external;
+    
+    /**
+     * @dev verifica si una apuesta fue ganadora
+     * @param _betId id de apuesta
+     * @return true si ganó, false de lo contrario
+     */
+    function isWinner(uint256 _betId) external view returns (bool);
     
     /**
      * @dev Devuelve la cantidad máxima por defaul que los usuarios pueden apostar al día.
