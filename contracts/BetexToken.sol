@@ -8,7 +8,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol";
  * no son divisibles.
  */
 contract BetexToken is ERC20Detailed, ERC20Mintable {    
-    constructor() public ERC20Detailed("Betex Token", "BTX", 10) {
+    constructor() public ERC20Detailed("Betex Token", "BTX", 18) {
         _mint(msg.sender, (2**255) * (10 ** uint256(decimals())));
     }
 }

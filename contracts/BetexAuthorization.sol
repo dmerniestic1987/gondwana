@@ -9,7 +9,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
  *      - MarketManager: El encagado de administrar los mercados de apuestas.
  *      - Owner: Es el dueño del contrato, en este caso el de BETEX.
  */
- //TODO: 30/06/2018 Los seteos críticos deberían hacerse a través de contratos de votación
+ //TODO: 30/06/2019 Los seteos críticos deberían hacerse a través de contratos de votación
 contract BetexAuthorization is Ownable {
     address private marketManagerAddress;
     address private ctoAddress;

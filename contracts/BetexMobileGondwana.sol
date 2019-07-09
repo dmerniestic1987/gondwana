@@ -88,7 +88,7 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
         bytes32 _runnerHash, 
         uint256 _odd, 
         uint256 _stake) external {
-
+        
     }
 
     /**
@@ -255,7 +255,7 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
     function isWinner(uint256 _betId) external view returns (bool) {
         return false;
     }
-    
+
     /**
      * @dev Inicializa el contrato
      * @param _betexSettings Dirección del contrato de configuración
