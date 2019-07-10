@@ -4,6 +4,7 @@ import "./IBetexMobileGondwana.sol";
 import "./BetexAuthorization.sol";
 import "./BetexSettings.sol";
 import "./BetexSelfExcluded.sol";
+import "./BetexCore.sol";
 
 /**
  * @dev Este contrato es el Proxy con el que el usuario de la aplicación 
@@ -12,12 +13,14 @@ import "./BetexSelfExcluded.sol";
 contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
     BetexSettings public betexSettings;
     BetexSelfExcluded public betexSelfExcluded;
+    BetexCore public betexCore;
 
     /**
      * @dev Sólo puede ser initializado una vez
+     * @param _better Address del apostador
      */
-    modifier notSelfExcluded(address better) {
-        require(!betexSelfExcluded.isSelfExcluded(better), "Self excluded better");
+    modifier notSelfExcluded(address _better) {
+        require(!betexSelfExcluded.isSelfExcluded(_better), "Self excluded better");
         _;
     }
 
@@ -67,12 +70,15 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
      * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
      * @param _odd Cuota de apuesta
      * @param _stake monto de la apuesta
+     * @param _isBack true si la apuesta es a favor, false de lo contrario
      */
-    function placeLayMarketBet(
+    function placeMarketBetBtx(
         bytes32 _marketHash, 
         bytes32 _runnerHash, 
         uint256 _odd, 
-        uint256 _stake) external {
+        uint256 _stake, 
+        bool _isBack) external {
+        
 
     }
 
@@ -82,14 +88,17 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
      * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
      * @param _odd Cuota de apuesta
      * @param _stake monto de la apuesta
+     * @param _isBack true si la apuesta es favor, false de lo contrario
     */    
-    function placeBackMarketBet(
+    function placeMarketBetWei(
         bytes32 _marketHash, 
         bytes32 _runnerHash, 
         uint256 _odd, 
-        uint256 _stake) external {
-        
+        uint256 _stake, 
+        bool _isBack) external {
+
     }
+
 
     /**
      * @dev Cancela una apuesta de mercado. Tiene asociado un costo de comisión
@@ -261,8 +270,10 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
      * @param _betexSettings Dirección del contrato de configuración
      * @param _betexSelfExcluded Dirección del contrato de autoexcluídos
      */
-    function init(address _betexSettings, address _betexSelfExcluded) onInitialize() onlyOwner() public {
+    function init(address _betexSettings, address _betexSelfExcluded, address _betexCore) 
+    onInitialize() onlyOwner() public {
         betexSettings = BetexSettings(_betexSettings);
         betexSelfExcluded = BetexSelfExcluded(_betexSelfExcluded);
+        betexCore = BetexCore(_betexCore);
     }
 }

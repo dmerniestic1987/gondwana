@@ -39,8 +39,9 @@ interface IBetexMobileGondwana {
      * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
      * @param _odd Cuota de apuesta
      * @param _stake monto de la apuesta
+     * @param _isBack true si la apuesta es a favor, false de lo contrario
      */
-    function placeLayMarketBet(bytes32 _marketHash, bytes32 _runnerHash, uint256 _odd, uint256 _stake) external;
+    function placeMarketBetBtx(bytes32 _marketHash, bytes32 _runnerHash, uint256 _odd, uint256 _stake, bool _isBack) external;
 
     /** 
      * @dev Permite colocar apuestas en contra de algún equipo determinado
@@ -48,8 +49,9 @@ interface IBetexMobileGondwana {
      * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
      * @param _odd Cuota de apuesta
      * @param _stake monto de la apuesta
+     * @param _isBack ture si la apuesta es favor, false de lo contrario
     */    
-    function placeBackMarketBet(bytes32 _marketHash, bytes32 _runnerHash, uint256 _odd, uint256 _stake) external;
+    function placeMarketBetWei(bytes32 _marketHash, bytes32 _runnerHash, uint256 _odd, uint256 _stake, bool _isBack) external;
 
     /**
      * @dev Cancela una apuesta de mercado. Tiene asociado un costo de comisión

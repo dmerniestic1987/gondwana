@@ -51,7 +51,7 @@ contract('BetexSettings', async accounts => {
           defaultValues.comissionWinnerBetBtx,
           defaultValues.comissionCancelBetBtx);
         
-        await betexMobileGondwana.init(betexSettings.address, betexSelfExcluded.address);
+        await betexMobileGondwana.init(betexSettings.address, betexSelfExcluded.address, betexCore.address);
     });
 
     describe('GIVEN un usuario desea configurar betex con Gondwana', async () => {
