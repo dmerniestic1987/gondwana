@@ -51,7 +51,7 @@ interface IBetexMobileGondwana {
      * @param _stake monto de la apuesta
      * @param _isBack ture si la apuesta es favor, false de lo contrario
     */    
-    function placeMarketBetWei(bytes32 _marketHash, bytes32 _runnerHash, uint256 _odd, uint256 _stake, bool _isBack) external;
+    function placeMarketBetWei(bytes32 _marketHash, bytes32 _runnerHash, uint256 _odd, uint256 _stake, bool _isBack) external payable;
 
     /**
      * @dev Cancela una apuesta de mercado. Tiene asociado un costo de comisión
@@ -67,31 +67,39 @@ interface IBetexMobileGondwana {
 
     /**
      * @dev Obtiene los Max Odds hasta el momeno de un mercado y runner específico.
-     * @param _marketRunnerHash hashId
+     * @param _marketHash hash del mercado
+     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
      * @return (maxBackOdd, maxLayOdd): Cuota máxima a favor y en contra
      */
-    function getMaxOdds(bytes32 _marketRunnerHash) external view returns(uint256, uint256);
+    function getMaxOdds(bytes32 _marketHash, bytes32 _runnerHash) external view returns(uint256, uint256);
 
     /**
      * @dev Obtiene los Max Odds hasta el momeno de un mercado y runner específico.
-     * @param _marketRunnerHash sha3(eventId, marketId, runnerId)
-     * @param _amountWei monto en wei
+     * @param _marketHash hash del mercado
+     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
      */
-    function createP2PBetWei(bytes32 _marketRunnerHash, uint256 _amountWei) external;
+    function createP2PBetWei(bytes32 _marketHash, bytes32 _runnerHash) external payable;
 
     /**
      * @dev Obtiene los Max Odds hasta el momeno de un mercado y runner específico.
-     * @param _marketRunnerHash hashId
+     * @param _marketHash hash del mercado
+     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
      * @param _amountBtx monto en Btx
      */
-    function createP2PBetBtx(bytes32 _marketRunnerHash, uint256 _amountBtx) external;
+    function createP2PBetBtx(bytes32 _marketHash, bytes32 _runnerHash, uint256 _amountBtx) external;
 
     /**
      * @dev Acepta una apuesta P2P(directa) que esté abierta
      * @param _betId id of bet
-     * @param _amountWei hashId
+     * @param _amount hashId
      */
-    function acceptP2PBet(uint256 _betId, uint256 _amountWei) external;
+    function acceptP2PBetBtx(uint256 _betId, uint256 _amount) external;
+
+    /**
+     * @dev Acepta una apuesta P2P(directa) que esté abierta
+     * @param _betId id of bet
+     */
+    function acceptP2PBetWei(uint256 _betId) external payable;
 
     /**
      * @dev Cancela una apuesta P2P(directa) que esté abierta. Se cobra una comisión.

@@ -71,7 +71,7 @@ contract BetexSettings is BetexAuthorization {
      * El usuario puede guardar su propia configuración
      * @return defaultMaxAmountWeiPerDay
      */
-    function getDefaultMaxAmountWeiPerDay() external onlyWhitelist() returns (uint256)  {
+    function getDefaultMaxAmountWeiPerDay() external view onlyWhitelist() returns (uint256)  {
         return defaultMaxAmountWeiPerDay; 
     }
 
@@ -81,7 +81,7 @@ contract BetexSettings is BetexAuthorization {
      * El usuario puede guardar su propia configuración
      * @return defaultMaxAmountBtxPerDay expresado en btx
      */
-    function getDefaultMaxAmountBtxPerDay() external onlyWhitelist() returns (uint256) {
+    function getDefaultMaxAmountBtxPerDay() external view onlyWhitelist() returns (uint256) {
         return defaultMaxAmountBtxPerDay; 
     }
 
@@ -90,7 +90,7 @@ contract BetexSettings is BetexAuthorization {
      * usuarios pueden hacer al día. El usuario puede guardar su propia configuración
      * @return defaultMaxBetsPerDay cantidad
      */
-    function getDefaultMaxBetsPerDay() external onlyWhitelist() returns (uint256){
+    function getDefaultMaxBetsPerDay() external view onlyWhitelist() returns (uint256){
         return defaultMaxBetsPerDay; 
     }
 
