@@ -66,39 +66,35 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
 
     /**
      * @dev Permite colocar apuestas en contra de algún equipo determinado
-     * @param _marketHash Hash del mercado
-     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
+     * @param _marketRunnerHash sha3 (marketId + runnerId)
      * @param _odd Cuota de apuesta
      * @param _stake monto de la apuesta
      * @param _isBack true si la apuesta es a favor, false de lo contrario
      */
     function placeMarketBetBtx(
-        bytes32 _marketHash, 
-        bytes32 _runnerHash, 
+        bytes32 _marketRunnerHash,
         uint256 _odd, 
         uint256 _stake, 
         bool _isBack) external {
 
-        betexCore.placeMarketBetBtx(msg.sender, _marketHash, _runnerHash, _odd, _stake, _isBack);
+        betexCore.placeMarketBetBtx(msg.sender, _marketRunnerHash, _odd, _stake, _isBack);
     }
 
     /** 
      * @dev Permite colocar apuestas en contra de algún equipo determinado
-     * @param _marketHash Hash del mercado
-     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
+     * @param _marketRunnerHash sha3 (marketId + runnerId)
      * @param _odd Cuota de apuesta
      * @param _stake monto de la apuesta
      * @param _isBack true si la apuesta es favor, false de lo contrario
     */    
     function placeMarketBetWei(
-        bytes32 _marketHash, 
-        bytes32 _runnerHash, 
+        bytes32 _marketRunnerHash,
         uint256 _odd, 
         uint256 _stake, 
         bool _isBack) external payable {
         
         uint256 amount = msg.value;
-        betexCore.placeMarketBetWei(msg.sender, _marketHash, _runnerHash, _odd, _stake, _isBack);
+        betexCore.placeMarketBetWei(msg.sender, _marketRunnerHash, _odd, _stake, _isBack);
     }
 
 
@@ -120,34 +116,31 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
 
     /**
      * @dev Obtiene los Max Odds hasta el momeno de un mercado y runner específico.
-     * @param _marketHash hash del mercado
-     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
+     * @param _marketRunnerHash sha3(marketId + runnerId)
      * @return (maxBackOdd, maxLayOdd): Cuota máxima a favor y en contra
      */
-    function getMaxOdds(bytes32 _marketHash, bytes32 _runnerHash) external view returns(uint256, uint256) {
-        return betexCore.getMaxOdds(_marketHash, _runnerHash);
+    function getMaxOdds(bytes32 _marketRunnerHash) external view returns(uint256, uint256) {
+        return betexCore.getMaxOdds(_marketRunnerHash);
     }
 
     /**
      * @dev Obtiene los Max Odds hasta el momeno de un mercado y runner específico.
-     * @param _marketHash hash del mercado
-     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
+     * @param _marketRunnerHash sha3(marketId + runnerId)
      */
-    function createP2PBetWei(bytes32 _marketHash, bytes32 _runnerHash) 
+    function createP2PBetWei(bytes32 _marketRunnerHash) 
     external payable notSelfExcluded(msg.sender) {
         uint256 amount = msg.value;
-        betexCore.createP2PBetWei(msg.sender, _marketHash, _runnerHash, amount);
+        betexCore.createP2PBetWei(msg.sender, _marketRunnerHash, amount);
     }
 
     /**
      * @dev Obtiene los Max Odds hasta el momeno de un mercado y runner específico.
-     * @param _marketHash hash del mercado
-     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
+     * @param _marketRunnerHash sha3(marketId + runnerId)
      * @param _amountBtx monto en Btx
      */
-    function createP2PBetBtx(bytes32 _marketHash, bytes32 _runnerHash, uint256 _amountBtx) 
+    function createP2PBetBtx(bytes32 _marketRunnerHash, uint256 _amountBtx) 
     external notSelfExcluded(msg.sender) {
-        betexCore.createP2PBetBtx(msg.sender, _marketHash, _runnerHash, _amountBtx);
+        betexCore.createP2PBetBtx(msg.sender, _marketRunnerHash, _amountBtx);
     }
 
     /**
@@ -168,19 +161,31 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
         betexCore.acceptP2PBetWei(msg.sender, _betId, amount);
     }
 
+    /**
+     * @dev Cancela una apuesta P2P(directa) que esté abierta y sin matcheo
+     * @param _betId id of bet
+     */
     function cancelP2PBet(uint256 _betId) external {
-
+        betexCore.cancelP2PBet(msg.sender, _betId);
     }
 
+    /**
+     * @dev Un usuario rechaza una apuesta P2P
+     * @param _betId id of bet
+     */
     function refuseP2PBet(uint256 _betId) external {
-
+        betexCore.refuseP2PBet(msg.sender, _betId);
     }
 
+    /**
+     * @dev Un usuario cobra una apuesta P2P
+     * @param _betId id of bet
+     */
     function chargeP2PBet(uint256 _betId) external {
-
+        betexCore.chargeP2PBet(msg.sender, _betId);
     }    
 
-        /**
+    /**
      * @dev Devuelve la cantidad máxima por defaul que los usuarios pueden apostar al día.
      * El usuario puede guardar su propia configuración
      * @return defaultMaxAmountWeiPerDay
@@ -188,7 +193,6 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
     function getDefaultMaxAmountWeiPerDay() external returns (uint256) {
         return betexSettings.getDefaultMaxAmountWeiPerDay();
     }
-
 
     /**
      * @dev Devuelve la cantidad máxima por defaul que los usuarios puede apostar al día.
@@ -216,7 +220,7 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
         return betexSettings.getMinStakeWei();
     }
 
-        /**
+    /**
      @dev Devuelve el monto máximo de apuestas permitadas en wei.
      @return maxStakeWei
      */
@@ -256,7 +260,7 @@ contract BetexMobileGondwana is IBetexMobileGondwana, BetexAuthorization {
         return betexSettings.getComissionCancelBetWei();
     }
 
-        /**
+    /**
      @dev Devuelve la información de las comisiones a los ganadores en btx.
      @return comissionWinnerBetBtx
      */

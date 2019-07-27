@@ -35,23 +35,21 @@ interface IBetexMobileGondwana {
 
     /**
      * @dev Permite colocar apuestas en contra de algún equipo determinado
-     * @param _marketHash Hash del mercado
-     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
+     * @param _marketRunnerHash sha3(marketId + runnerId)
      * @param _odd Cuota de apuesta
      * @param _stake monto de la apuesta
      * @param _isBack true si la apuesta es a favor, false de lo contrario
      */
-    function placeMarketBetBtx(bytes32 _marketHash, bytes32 _runnerHash, uint256 _odd, uint256 _stake, bool _isBack) external;
+    function placeMarketBetBtx(bytes32 _marketRunnerHash, uint256 _odd, uint256 _stake, bool _isBack) external;
 
     /** 
      * @dev Permite colocar apuestas en contra de algún equipo determinado
-     * @param _marketHash Hash del mercado
-     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
+     * @param _marketRunnerHash sha3(marketId + runnerId)
      * @param _odd Cuota de apuesta
      * @param _stake monto de la apuesta
      * @param _isBack ture si la apuesta es favor, false de lo contrario
     */    
-    function placeMarketBetWei(bytes32 _marketHash, bytes32 _runnerHash, uint256 _odd, uint256 _stake, bool _isBack) external payable;
+    function placeMarketBetWei(bytes32 _marketRunnerHash, uint256 _odd, uint256 _stake, bool _isBack) external payable;
 
     /**
      * @dev Cancela una apuesta de mercado. Tiene asociado un costo de comisión
@@ -67,26 +65,23 @@ interface IBetexMobileGondwana {
 
     /**
      * @dev Obtiene los Max Odds hasta el momeno de un mercado y runner específico.
-     * @param _marketHash hash del mercado
-     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
+     * @param _marketRunnerHash sha3(marketId + runnerId)
      * @return (maxBackOdd, maxLayOdd): Cuota máxima a favor y en contra
      */
-    function getMaxOdds(bytes32 _marketHash, bytes32 _runnerHash) external view returns(uint256, uint256);
+    function getMaxOdds(bytes32 _marketRunnerHash) external view returns(uint256, uint256);
 
     /**
      * @dev Obtiene los Max Odds hasta el momeno de un mercado y runner específico.
-     * @param _marketHash hash del mercado
-     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
+     * @param _marketRunnerHash sha3(marketId + runnerId)
      */
-    function createP2PBetWei(bytes32 _marketHash, bytes32 _runnerHash) external payable;
+    function createP2PBetWei(bytes32 _marketRunnerHash) external payable;
 
     /**
      * @dev Obtiene los Max Odds hasta el momeno de un mercado y runner específico.
-     * @param _marketHash hash del mercado
-     * @param _runnerHash Hash del runner (equipo o luchador) por le cual se apuesta
+     * @param _marketRunnerHash sha3(marketId + runnerId)
      * @param _amountBtx monto en Btx
      */
-    function createP2PBetBtx(bytes32 _marketHash, bytes32 _runnerHash, uint256 _amountBtx) external;
+    function createP2PBetBtx(bytes32 _marketRunnerHash, uint256 _amountBtx) external;
 
     /**
      * @dev Acepta una apuesta P2P(directa) que esté abierta
