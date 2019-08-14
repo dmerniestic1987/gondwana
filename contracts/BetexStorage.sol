@@ -10,6 +10,7 @@ contract BetexStorage is BetexAuthorization {
     enum BetStatus { OPEN, CLOSED, SUSPENDED, CHARGED }
     enum MarketStatus { OPEN, CLOSED, SUSPENDED }
     enum EventStatus { OPEN, CLOSED, SUSPENDED }
+    event Test(string key, string description);
 
     struct Market {
         bool doesExist;
@@ -17,7 +18,7 @@ contract BetexStorage is BetexAuthorization {
         bytes32[] runnerHashes;
     }
 
-    struct Event {
+    struct MarketEvent {
         bool doesExist;
         EventStatus eventStatus;
     }
@@ -34,8 +35,12 @@ contract BetexStorage is BetexAuthorization {
         BetStatus betStatus;        //Estado de la apuesta a
     }
 
-    mapping(uint256 => Event) private events;
-    mapping(uint256 => Market) private markets;
+    mapping(uint256 => uint256) private eventsMapping;
+    MarketEvent[] private events;
+
+    mapping(uint256 => uint256) private marketsMapping;
+    Market[] private markets;
+
     mapping(bytes32 => bool) private winners;
     uint256 private maxRunnersByMarket;
     Bet[] private bets;
@@ -47,7 +52,8 @@ contract BetexStorage is BetexAuthorization {
     * @dev Verifica que sea un nuevo evento
     */
     modifier isNewEvent(uint256 _eventId){
-        require(!events[_eventId].doesExist, "Event already exists");
+        uint256 eventIndex = eventsMapping[_eventId];
+        require(!events[eventIndex].doesExist, "Event already exists");
         _;
     }
 
@@ -55,15 +61,25 @@ contract BetexStorage is BetexAuthorization {
     * @dev Verifica que sea un nuevo mercado
     */
     modifier newMarket(uint256 _marketId){
-        require(!markets[_marketId].doesExist, "Market already exists");
+        uint256 marketIndex = marketsMapping[_marketId];
+        require(!markets[marketIndex].doesExist, "Market already exists");
         _;
     }
 
     /**
     * @dev Verifica que sea un nuevo mercado
     */
+    modifier marketExists(uint256 _marketId){
+        uint256 marketIndex = marketsMapping[_marketId];
+        require(markets[marketIndex].doesExist, "Market does not exist");
+        _;
+    }
+    /**
+    * @dev Verifica que sea un nuevo mercado
+    */
     modifier activeOpenMarket(uint256 _marketId){
-        require(!markets[_marketId].doesExist, "Market already exists");
+        uint256 marketIndex = marketsMapping[_marketId];
+        require(!markets[marketIndex].doesExist, "Market already exists");
         _;
     }
 
@@ -86,24 +102,35 @@ contract BetexStorage is BetexAuthorization {
     function openMarket( uint256 _eventId, uint256 _marketId, bytes32[] calldata _marketRunnerHashes)
     external isNewEvent(_eventId) newMarket(_marketId) {
         require(_marketRunnerHashes.length <= maxRunnersByMarket, "There are too much runners");
-        events[_eventId] = Event(true, EventStatus.OPEN);
-        markets[_marketId] = Market(true, MarketStatus.OPEN, _marketRunnerHashes);
+        uint256 eventIndex = events.push( MarketEvent(true, EventStatus.OPEN) ) - 1;
+        uint256 marketIndex = markets.push( Market(true, MarketStatus.OPEN, _marketRunnerHashes) ) - 1;
+        marketsMapping[_marketId] = marketIndex;
+        eventsMapping[_eventId] = eventIndex;
+        emit Test("openMarket", "Evento creado");
+        
     }
 
     /**
      * @dev Verifica si un mercado existe
      * @param _marketId marketId
-     * @return true si existe, false de lo contrario
+     * @return b true si existe, false de lo contrario
      */
     function doesMarketExists(uint256 _marketId) public view returns(bool){
-        return markets[_marketId].doesExist;
+        require(markets.length > 0, "Market does not exists");
+        //uint256 marketIndex = marketsMapping[_marketId];
+        //Market memory market = markets[marketIndex];
+        return true;
     }
     /**
      * @dev Obtiene los market runners con el ID de mercado
      * @param _marketId marketId
      * @return _marketRunnerHashes bytes32[]
      */
-    function getMarketRunners(uint256 _marketId) public view returns(bytes32[] memory _marketRunnerHashes) {
-        return markets[_marketId].runnerHashes;
+    function getMarketRunners(uint256 _marketId) public view returns(bytes32[] memory){
+        require(markets.length > 0, "Market does not exists");
+        uint256 marketIndex = marketsMapping[_marketId];
+        Market memory market = markets[marketIndex];
+        uint256 length = market.runnerHashes.length;
+        return market.runnerHashes;
     }
 }
