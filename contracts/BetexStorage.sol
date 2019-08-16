@@ -1,12 +1,10 @@
-pragma solidity 0.5.2;
-
-import "./BetexAuthorization.sol";
+pragma solidity 0.5.10;
 
 /**
  * @dev  BetexStorage guarda el estado de Betex.
  */
-contract BetexStorage is BetexAuthorization {
-    enum BetType { BACK, LAY }
+contract BetexStorage {
+ enum BetType { BACK, LAY }
     enum BetStatus { OPEN, CLOSED, SUSPENDED, CHARGED }
     enum MarketStatus { OPEN, CLOSED, SUSPENDED }
     enum EventStatus { OPEN, CLOSED, SUSPENDED }
@@ -47,22 +45,29 @@ contract BetexStorage is BetexAuthorization {
 
     constructor(uint256 _maxRunnersByMarket) public {
         maxRunnersByMarket = _maxRunnersByMarket;
+        _genesis();
     }
     /**
     * @dev Verifica que sea un nuevo evento
     */
     modifier isNewEvent(uint256 _eventId){
         uint256 eventIndex = eventsMapping[_eventId];
-        require(!events[eventIndex].doesExist, "Event already exists");
+        require(eventIndex == 0, "Event already exists");
         _;
     }
-
+    
+    modifier noGenesis(uint256 _eventId, uint256 _marketId) {
+        require(_eventId > 0, "Event does not exists");
+        require(_marketId > 0, "Market does not exists");
+        _;
+    }
+    
     /**
     * @dev Verifica que sea un nuevo mercado
     */
     modifier newMarket(uint256 _marketId){
         uint256 marketIndex = marketsMapping[_marketId];
-        require(!markets[marketIndex].doesExist, "Market already exists");
+        require(marketIndex == 0, "Market already exists");
         _;
     }
 
@@ -71,15 +76,7 @@ contract BetexStorage is BetexAuthorization {
     */
     modifier marketExists(uint256 _marketId){
         uint256 marketIndex = marketsMapping[_marketId];
-        require(markets[marketIndex].doesExist, "Market does not exist");
-        _;
-    }
-    /**
-    * @dev Verifica que sea un nuevo mercado
-    */
-    modifier activeOpenMarket(uint256 _marketId){
-        uint256 marketIndex = marketsMapping[_marketId];
-        require(!markets[marketIndex].doesExist, "Market already exists");
+        require(marketIndex != 0, "Market does not exist");
         _;
     }
 
@@ -100,7 +97,7 @@ contract BetexStorage is BetexAuthorization {
      * @param _marketRunnerHashes Array con los Hashes de los competidores por market. Máximo 3 elementos de sha3 (marketId + runnerId)
      */
     function openMarket( uint256 _eventId, uint256 _marketId, bytes32[] calldata _marketRunnerHashes)
-    external isNewEvent(_eventId) newMarket(_marketId) {
+    external noGenesis(_eventId, _marketId) isNewEvent(_eventId) newMarket(_marketId) {
         require(_marketRunnerHashes.length <= maxRunnersByMarket, "There are too much runners");
         uint256 eventIndex = events.push( MarketEvent(true, EventStatus.OPEN) ) - 1;
         uint256 marketIndex = markets.push( Market(true, MarketStatus.OPEN, _marketRunnerHashes) ) - 1;
@@ -116,10 +113,16 @@ contract BetexStorage is BetexAuthorization {
      * @return b true si existe, false de lo contrario
      */
     function doesMarketExists(uint256 _marketId) public view returns(bool){
-        require(markets.length > 0, "Market does not exists");
-        //uint256 marketIndex = marketsMapping[_marketId];
-        //Market memory market = markets[marketIndex];
-        return true;
+        if (_marketId == 0){
+            return false;
+        }
+        uint256 marketIndex = marketsMapping[_marketId];
+        if (marketIndex == 0) {
+            return false;
+        }
+        
+        Market memory market = markets[marketIndex];
+        return market.doesExist;
     }
     /**
      * @dev Obtiene los market runners con el ID de mercado
@@ -127,10 +130,22 @@ contract BetexStorage is BetexAuthorization {
      * @return _marketRunnerHashes bytes32[]
      */
     function getMarketRunners(uint256 _marketId) public view returns(bytes32[] memory){
-        require(markets.length > 0, "Market does not exists");
+        require(_marketId > 0, "Market does not exists");
         uint256 marketIndex = marketsMapping[_marketId];
+        require(marketIndex > 0, "Market runners does not exists");
         Market memory market = markets[marketIndex];
-        uint256 length = market.runnerHashes.length;
         return market.runnerHashes;
+    }
+
+    /**
+     * @dev Inicializa las estructuras de datos
+     */
+    function _genesis() private {
+        bytes32[] memory marketRunnerHashes = new bytes32[](1);
+        marketRunnerHashes[0] = keccak256(abi.encodePacked("Betex"));
+        events.push(MarketEvent(true, EventStatus.CLOSED));
+        eventsMapping[0] = 0;
+        markets.push(Market(true, MarketStatus.CLOSED, marketRunnerHashes));
+        marketsMapping[0] = 0;
     }
 }

@@ -1,4 +1,4 @@
-pragma solidity 0.5.2;
+pragma solidity 0.5.10;
 
 /**
  * @dev Es la interfaz entre BetexMobile y Gondwana. Define las funciones
