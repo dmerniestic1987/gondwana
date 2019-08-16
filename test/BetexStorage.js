@@ -16,8 +16,8 @@ const testValues = {
         marketId: web3.utils.toBN(marketIdTimer),
         description: "OK Market 01",
         runners: [
-          web3.utils.keccak256("RUNNER0001"),
-          web3.utils.keccak256("RUNNER0002")
+          web3.utils.randomHex(32),
+          web3.utils.randomHex(32)
         ]
       },
       {
@@ -59,7 +59,7 @@ contract("BetexStorage", async accounts => {
       tx = await betexStorage.openMarket(
         testValues.event01.eventId,
         testValues.event01.markets[0].marketId,
-        web3.eth.abi.encodeParameter('bytes32[]', ["0x7880aec93413f117ef14bd4e6d130875ab2c7d7d55a064fac3c2f7bd51516380", "0x7880aec93413f117ef14bd4e6d130875ab2c7d7d55a064fac3c2f7bd51516380"])
+        web3.eth.abi.encodeParameter('bytes32[]', testValues.event01.markets[0].runners)
       );
     });
     it('THEN El evento de nuevo mercado se debe disparar', async () => {            
