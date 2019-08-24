@@ -3,7 +3,10 @@ const truffleAssert = require("truffle-assertions");
 const BetexStorage = artifacts.require("./BetexStorage.sol");
 
 const RUNNER_ALREADY_EXIST = "Runner already exists";
-
+const MARKET_STATUS_OPEN = web3.utils.toBN(0);
+const MARKET_STATUS_READY = web3.utils.toBN(1);
+const MARKET_STATUS_CLOSED = web3.utils.toBN(2);
+const MARKET_STATUS_SUSPENDED = web3.utils.toBN(3);
 let tx;
 let betexStorage;
 const eventId = 1;
@@ -33,10 +36,16 @@ contract("BetexStorage", async accounts => {
         const marketRunner = await betexStorage.getMarketRunners(marketId);
         assert(marketRunner != undefined, "No hay runners");
         assert(marketRunner.length == 1, "No hay runners");
+        const marketStatus = await betexStorage.getMarketStatus(marketId);
+        console.log(marketStatus.toString());
+      });
+      it("THEN el mercado debe estar en estado abierto", async () => {
+        const marketStatus = await betexStorage.getMarketStatus(marketId);
+        assert(marketStatus.eq(MARKET_STATUS_OPEN), "El mercado no está OPEN");
       });
     });
     describe("AND se agrega otro runner", async () => {
-      it("THEN un mercado inexistente debe existir", async () => {
+      it("THEN el nuevo runner debe existir", async () => {
         const txAddMarket = await betexStorage.addMarketRunner(
           marketId,
           runner2
@@ -45,6 +54,13 @@ contract("BetexStorage", async accounts => {
         const marketRunner = await betexStorage.getMarketRunners(marketId);
         assert(marketRunner != undefined, "No hay runners");
         assert(marketRunner.length == 2, "No hay runners");
+      });
+      it("THEN el mercado tiene que estar READY", async () => {
+        const marketStatus = await betexStorage.getMarketStatus(marketId);
+        assert(
+          marketStatus.eq(MARKET_STATUS_READY),
+          "El mercado no está READY"
+        );
       });
     });
   });
