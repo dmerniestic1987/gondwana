@@ -1,22 +1,13 @@
-pragma solidity >= 0.5.0;
-import "./BetexAccessControl.sol";
+pragma solidity 0.5.10;
 
+import "./BetexSettings.sol";
 /**
  * @title BetexAdmin
  * @dev Este contrato permite configurar cuál es el mínimo de apuestas y las comisiones 
  *      que se le cobran al ganador del las apuestas. También permite administrar los 
  *      mercados. 
  */
-contract BetexAdmin is BetexAccessControl{
-    //Apuesta mínima
-    uint public minimumStake;
-    
-    //Comisión que se le cobra al ganador de la apuesta
-    uint8 public commission;
-
-    //Ganancias totales acumuladas
-    uint internal gain;
-    
+contract BetexAdmin is BetexSettings {
     //Estados de los mercados
     enum MarketStatus { ACTIVE      //Mercado Activo: Se puede apostar
                       , SUSPENDED   //Mercado suspendido: NO se puede apostar y espera a que finalice un evento
@@ -25,8 +16,7 @@ contract BetexAdmin is BetexAccessControl{
     event OpenMarket(uint128 marketId);
     event ClosedMarket(uint128 marketId);      
     event SuspendedMarket(uint128 marketId);            
-    event SettedCommision(uint8 oldComission, uint8 newComission); 
-    event SettedStake(uint oldMinStake, uint newMinStake); 
+
 
     struct Market {
         MarketStatus marketStatus; //Estado de la apuesta 
@@ -71,44 +61,6 @@ contract BetexAdmin is BetexAccessControl{
     }
     
     /**
-     * @dev Obtiene el balance en Ether acumulado en el contrato
-     * @return el balance acumulado del contrato
-     */
-    function getBalance() public view  onlyCFO() returns (uint){
-        return address(this).balance;
-    }
-
-    /**
-     * @dev Obtiene las ganancias acumuladas  hasta el momento
-     * @return gain - Ganancias acumuladas hasta el momento
-     */
-    function getGains() public view onlyCFO() returns (uint)  {
-        return gain;
-    }
-
-    /**
-     * @dev Setea el monto mínimo de apuestas permitidos. El porcentaje que se le cobra
-     *      es sobre el total que ganó
-     * @param _commission Es la comisión que le cobra al ganador de una apuesta
-     */
-    function setCommission(uint8 _commission) public onlyCFO(){
-        require(_commission > 0 && _commission <= 100, "Porcentaje incorrecto");
-        uint8 oldComission = commission;
-        commission = _commission;
-        emit SettedCommision(oldComission, commission);
-    }
-
-    /**
-     * @dev Setea el monto mínimo de apuestas permitidos
-     * @param _minStake Mínimo permitido en wei
-     */
-    function setMinimunStake(uint _minStake) public onlyMarketManager(){
-        uint oldMinStake = minimumStake;
-        minimumStake = _minStake;
-        emit SettedStake(oldMinStake, minimumStake);
-    }
-
-    /**
      * @dev Agrega un mercado a la base de datos
      * @param _marketIdLaursia Id en Laurasia
      */
@@ -117,6 +69,15 @@ contract BetexAdmin is BetexAccessControl{
         markets[_marketIdLaursia].marketStatus = MarketStatus.ACTIVE;
         emit OpenMarket(_marketIdLaursia);
     }    
+
+    /**
+     * @dev Verifica si el mercado existe
+     * @param _marketIdLaursia Id en Laurasia
+     * @return true si existe, false de lo contrario
+     */
+    function marketExists(uint128 _marketIdLaursia) public view returns(bool){
+        return marketsExists[_marketIdLaursia];
+    }
 
     /**
      * @dev Suspende un mercado
