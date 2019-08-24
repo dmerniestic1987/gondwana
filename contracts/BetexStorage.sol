@@ -9,7 +9,6 @@ contract BetexStorage is BetexAuthorization {
     enum BetStatus { OPEN, CLOSED, SUSPENDED, CHARGED }
     enum MarketStatus { OPEN, READY, CLOSED, SUSPENDED }
     enum EventStatus { OPEN, SUSPENDED }
-    event Test(string key, string description);
 
     struct Market {
         bool doesExist;
@@ -150,7 +149,6 @@ contract BetexStorage is BetexAuthorization {
         }
         uint256 marketIndex = markets.push(Market(true, MarketStatus.OPEN, _totalRunners)) - 1;
         marketsMapping[_marketId] = marketIndex;
-        emit Test("openMarket", "Evento creado");
     }
 
     /**
@@ -169,7 +167,6 @@ contract BetexStorage is BetexAuthorization {
         if (marketRunnerHashes[marketIndex].length == market.totalRunners){
             markets[marketIndex].marketStatus = MarketStatus.READY;
         }
-        emit Test("addMarketRunner", "Runner agregado");
     }
 
     /**
@@ -183,7 +180,6 @@ contract BetexStorage is BetexAuthorization {
         uint256 marketIndex = marketsMapping[_marketId];
         markets[marketIndex].marketStatus = MarketStatus.CLOSED;
         winners[_winnerMarketRunner] = true;
-        emit Test("resolverMarket", "Mercado resuleto");
     }
 
     /**
@@ -194,7 +190,6 @@ contract BetexStorage is BetexAuthorization {
         uint256 marketIndex = marketsMapping[_marketId];
         require(markets[marketIndex].marketStatus != MarketStatus.CLOSED, "Market is closed");
         markets[marketIndex].marketStatus = MarketStatus.SUSPENDED;
-        emit Test("suspendMarket", "Mercado supendido");
     }
 
 
