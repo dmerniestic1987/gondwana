@@ -1,7 +1,8 @@
 pragma solidity 0.5.10;
 
 /**
- * @dev  BetexStorage guarda el estado de Betex.
+ * @dev  BetexStorage guarda el estado de Betex. Contiene información
+ * de las apusetas realizadas y los mercados que se administran con Laurasia
  */
 contract BetexStorage {
  enum BetType { BACK, LAY }
