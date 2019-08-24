@@ -96,9 +96,12 @@ contract BetexStorage {
      * @param _marketId ID del mercado de Laurasia
      */
     function openMarket( uint256 _eventId, uint256 _marketId)
-    external noGenesis(_eventId, _marketId) isNewEvent(_eventId) isNewMarket(_marketId) {
-        uint256 eventIndex = events.push(MarketEvent(true, EventStatus.OPEN)) - 1;
-        eventsMapping[_eventId] = eventIndex;
+    external noGenesis(_eventId, _marketId) isNewMarket(_marketId) {
+        uint256 eventIndex = eventsMapping[_eventId];
+        if (eventIndex == 0){
+            eventIndex = events.push(MarketEvent(true, EventStatus.OPEN)) - 1;
+            eventsMapping[_eventId] = eventIndex;
+        }
         uint256 marketIndex = markets.push(Market(true, MarketStatus.OPEN)) - 1;
         marketsMapping[_marketId] = marketIndex;
         emit Test("openMarket", "Evento creado");
