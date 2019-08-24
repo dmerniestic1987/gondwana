@@ -1,4 +1,5 @@
-pragma solidity >= 0.5.0;
+pragma solidity 0.5.10;
+
 import "./BetexToken.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
