@@ -112,7 +112,7 @@ contract BetexStorage {
      */
     function openMarket( uint256 _eventId, uint256 _marketId, uint256 _totalRunners)
     external noGenesis(_eventId, _marketId) isNewMarket(_marketId) {
-        require(_totalRunners < maxRunnersByMarket, "Too many runners");
+        require(_totalRunners <= maxRunnersByMarket, "Too many runners");
         uint256 eventIndex = eventsMapping[_eventId];
         if (eventIndex == 0){
             eventIndex = events.push(MarketEvent(true, EventStatus.OPEN)) - 1;
