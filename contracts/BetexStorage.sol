@@ -13,7 +13,6 @@ contract BetexStorage {
     struct Market {
         bool doesExist;
         MarketStatus marketStatus;
-        bytes32[] runnerHashes;
     }
 
     struct MarketEvent {
@@ -37,6 +36,8 @@ contract BetexStorage {
     MarketEvent[] private events;
 
     mapping(uint256 => uint256) private marketsMapping;
+    mapping(uint256 => bytes32[]) private marketRunnerHashes;
+    mapping(bytes32 => bool) private marketRunnerHashesDupControl;
     Market[] private markets;
 
     mapping(bytes32 => bool) private winners;
@@ -65,7 +66,7 @@ contract BetexStorage {
     /**
     * @dev Verifica que sea un nuevo mercado
     */
-    modifier newMarket(uint256 _marketId){
+    modifier isNewMarket(uint256 _marketId){
         uint256 marketIndex = marketsMapping[_marketId];
         require(marketIndex == 0, "Market already exists");
         _;
@@ -74,9 +75,8 @@ contract BetexStorage {
     /**
     * @dev Verifica que sea un nuevo mercado
     */
-    modifier marketExists(uint256 _marketId){
-        uint256 marketIndex = marketsMapping[_marketId];
-        require(marketIndex != 0, "Market does not exist");
+    modifier marketMustExist(uint256 _marketId){
+        require(doesMarketExists(_marketId), "Market does not exist");
         _;
     }
 
@@ -94,17 +94,28 @@ contract BetexStorage {
      * @dev Abre un mercado determinado con n competidores o runners. Por control interno.
      * @param _eventId Id el evento de Laurasia
      * @param _marketId ID del mercado de Laurasia
-     * @param _marketRunnerHashes Array con los Hashes de los competidores por market. Máximo 3 elementos de sha3 (marketId + runnerId)
      */
-    function openMarket( uint256 _eventId, uint256 _marketId, bytes32[] calldata _marketRunnerHashes)
-    external noGenesis(_eventId, _marketId) isNewEvent(_eventId) newMarket(_marketId) {
-        require(_marketRunnerHashes.length <= maxRunnersByMarket, "There are too much runners");
-        uint256 eventIndex = events.push( MarketEvent(true, EventStatus.OPEN) ) - 1;
-        uint256 marketIndex = markets.push( Market(true, MarketStatus.OPEN, _marketRunnerHashes) ) - 1;
-        marketsMapping[_marketId] = marketIndex;
+    function openMarket( uint256 _eventId, uint256 _marketId)
+    external noGenesis(_eventId, _marketId) isNewEvent(_eventId) isNewMarket(_marketId) {
+        uint256 eventIndex = events.push(MarketEvent(true, EventStatus.OPEN)) - 1;
         eventsMapping[_eventId] = eventIndex;
+        uint256 marketIndex = markets.push(Market(true, MarketStatus.OPEN)) - 1;
+        marketsMapping[_marketId] = marketIndex;
         emit Test("openMarket", "Evento creado");
-        
+    }
+
+    /**
+     * @dev Agrega un runner a un market determinado
+     * @param _marketId ID del mercado de Laurasia
+     * @param _marketRunnerHash hash del mercado
+     */
+    function addMarketRunner( uint256 _marketId, bytes32 _marketRunnerHash) external marketMustExist(_marketId){
+        uint256 marketIndex = marketsMapping[_marketId];
+        require(marketRunnerHashes[marketIndex].length < maxRunnersByMarket, "There are too many runners");
+        require(!marketRunnerHashesDupControl[_marketRunnerHash], "Runner already exists");
+        marketRunnerHashes[marketIndex].push(_marketRunnerHash);
+        marketRunnerHashesDupControl[_marketRunnerHash] = true;
+        emit Test("addMarketRunner", "Runner agregado");
     }
 
     /**
@@ -129,23 +140,23 @@ contract BetexStorage {
      * @param _marketId marketId
      * @return _marketRunnerHashes bytes32[]
      */
-    function getMarketRunners(uint256 _marketId) public view returns(bytes32[] memory){
+    function getMarketRunners(uint256 _marketId) public marketMustExist(_marketId) view returns(bytes32[] memory){
         require(_marketId > 0, "Market does not exists");
         uint256 marketIndex = marketsMapping[_marketId];
         require(marketIndex > 0, "Market runners does not exists");
-        Market memory market = markets[marketIndex];
-        return market.runnerHashes;
+        return marketRunnerHashes[marketIndex];
     }
 
     /**
      * @dev Inicializa las estructuras de datos
      */
     function _genesis() private {
-        bytes32[] memory marketRunnerHashes = new bytes32[](1);
-        marketRunnerHashes[0] = keccak256(abi.encodePacked("Betex"));
         events.push(MarketEvent(true, EventStatus.CLOSED));
         eventsMapping[0] = 0;
-        markets.push(Market(true, MarketStatus.CLOSED, marketRunnerHashes));
+        markets.push(Market(true, MarketStatus.CLOSED));
         marketsMapping[0] = 0;
+        bytes32 runner = keccak256(abi.encodePacked("Betex"));
+        marketRunnerHashes[0].push(runner);
+        marketRunnerHashesDupControl[runner] = true;
     }
 }
