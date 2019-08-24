@@ -5,7 +5,7 @@ import "./BetexAuthorization.sol";
  * de las apusetas realizadas y los mercados que se administran con Laurasia
  */
 contract BetexStorage is BetexAuthorization {
- enum BetType { BACK, LAY }
+    enum BetType { BACK, LAY }
     enum BetStatus { OPEN, CLOSED, SUSPENDED, CHARGED }
     enum MarketStatus { OPEN, READY, CLOSED, SUSPENDED }
     enum EventStatus { OPEN, SUSPENDED }

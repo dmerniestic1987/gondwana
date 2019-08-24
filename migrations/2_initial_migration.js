@@ -1,12 +1,9 @@
-const Web3 = require("web3");
 const BigNumber = require("bignumber.js");
 var BetexSelfExcluded = artifacts.require("./BetexSelfExcluded.sol");
 var BetexToken = artifacts.require("./BetexToken.sol");
 var BetexSettings = artifacts.require("./BetexSettings.sol");
 var BetexMobileGondwana = artifacts.require("./BetexMobileGondwana.sol");
 var BetexCore = artifacts.require("./BetexCore.sol");
-const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-//const web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/a973f72655dc4760bfc81012fec47c86'))
 
 module.exports = async function(deployer) {
   const PRECISION = 10 ** 18;
