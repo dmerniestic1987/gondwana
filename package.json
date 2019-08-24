@@ -1,6 +1,6 @@
 {
   "name": "betex-gondwana",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "homepage": "https://github.com/dmerniestic1987/gondwana",
   "description": "Betex Gondwana",
@@ -15,6 +15,8 @@
     "truffle-migrate-dev": "rm -r build; ./node_modules/.bin/truffle migrate --network development --reset",
     "truffle-migrate-rinkeby": "./node_modules/.bin/truffle migrate --network rinkeby --reset",
     "truffle-migrate-ropsten": "./node_modules/.bin/truffle migrate --network ropsten --reset",
+    "truffle-migrate-poa-sokol-testnet": "./node_modules/.bin/truffle migrate --network poaSokolTestnet --reset",
+    "truffle-migrate-rsk-testnet": "./node_modules/.bin/truffle migrate --network rskTestnet --reset",
     "ganache-cli": "scripts/ganache.sh",
     "test": "scripts/test.sh",
     "gen-java": "rm -r build; ./node_modules/.bin/truffle compile --all; scripts/gen_java_classes.sh",
