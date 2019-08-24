@@ -132,7 +132,7 @@ contract BetexStorage {
     external inMarketStatus(_marketId, MarketStatus.OPEN){
         uint256 marketIndex = marketsMapping[_marketId];
         Market memory market = markets[marketIndex];
-        require(marketRunnerHashes[marketIndex].length < market.totalRunners, "There are too many runners");
+        require(marketRunnerHashes[marketIndex].length < market.totalRunners, "Adding too many runners");
         require(!activeMarketRunners[_marketRunnerHash], "Runner already exists");
         marketRunnerHashes[marketIndex].push(_marketRunnerHash);
         activeMarketRunners[_marketRunnerHash] = true;
@@ -152,6 +152,7 @@ contract BetexStorage {
         uint256 marketIndex = marketsMapping[_marketId];
         markets[marketIndex].marketStatus = MarketStatus.CLOSED;
         winners[_winnerMarketRunner] = true;
+        emit Test("resolverMarket", "Mercado resuleto");
     }
 
     /**

@@ -55,8 +55,6 @@ contract("BetexStorage", async accounts => {
             const marketRunner = await betexStorage.getMarketRunners(s.marketId);
             assert(marketRunner != undefined, "No hay runners");
             assert(marketRunner.length > 0, "No hay runners");
-            const marketStatus = await betexStorage.getMarketStatus(s.marketId);
-            console.log(" * * MARKET STATUS: " + marketStatus.toString());
           });
         });
       });
@@ -85,6 +83,26 @@ contract("BetexStorage", async accounts => {
       it("THEN un mercado inexistente no debe existir", async () => {
         const marketExist = await betexStorage.doesMarketExists(s.unrealMarketId);
         assert.isFalse(marketExist, "El mercado no debería existir");
+      });
+    });
+    describe("GIVEN el mercado se resuelve", async () => {
+      before(s.description, async () => {
+        tx = await betexStorage.resolverMarket(s.marketId, s.runners[1]);
+      });
+      it("THEN el mercado debe quedar en estado closed", async () => {
+        const marketStatus = await betexStorage.getMarketStatus(s.marketId);
+        assert(
+          marketStatus.eq(MARKET_STATUS_CLOSED),
+          "El mercado no está CLOSED"
+        );
+      });
+      it(`AND el runner ${s.runners[0]} debe ser perdedor`, async () => {
+        const isWinner = await betexStorage.isWinner(s.runners[0]);
+        assert.isFalse(isWinner, "El runner no es looser");
+      });
+      it(`AND el runner ${s.runners[1]} debe ser ganador`, async () => {
+        const isWinner = await betexStorage.isWinner(s.runners[1]);
+        assert.isTrue(isWinner, "El runner no es winner");
       });
     });
   });
