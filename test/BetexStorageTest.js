@@ -2,6 +2,8 @@ const assert = require("chai").assert;
 const truffleAssert = require("truffle-assertions");
 const BetexStorage = artifacts.require("./BetexStorage.sol");
 
+const RUNNER_ALREADY_EXIST = "Runner already exists";
+
 let tx;
 let betexStorage;
 const eventId = 1;
@@ -14,7 +16,7 @@ contract("BetexStorage", async accounts => {
   const owner = accounts[0];
   before("Se crea un mercado y evento", async () => {
     betexStorage = await BetexStorage.new(3, { from: owner });
-    tx = await betexStorage.openMarket(eventId, marketId);
+    tx = await betexStorage.openMarket(eventId, marketId, 2);
   });
   describe("GIVEN se crea un nuevo mercado", async () => {
     it("THEN el nuevo mercado debe existir", async () => {
