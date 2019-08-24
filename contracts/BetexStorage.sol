@@ -1,14 +1,14 @@
 pragma solidity 0.5.10;
-
+import "./BetexAuthorization.sol";
 /**
  * @dev  BetexStorage guarda el estado de Betex. Contiene información
  * de las apusetas realizadas y los mercados que se administran con Laurasia
  */
-contract BetexStorage {
+contract BetexStorage is BetexAuthorization {
  enum BetType { BACK, LAY }
     enum BetStatus { OPEN, CLOSED, SUSPENDED, CHARGED }
     enum MarketStatus { OPEN, READY, CLOSED, SUSPENDED }
-    enum EventStatus { OPEN, CLOSED, SUSPENDED }
+    enum EventStatus { OPEN, SUSPENDED }
     event Test(string key, string description);
 
     struct Market {
@@ -44,10 +44,12 @@ contract BetexStorage {
 
     mapping(bytes32 => bool) private winners;
     uint256 private maxRunnersByMarket;
+    uint256 private maxMarketsByEvent;
     Bet[] private bets;
 
-    constructor(uint256 _maxRunnersByMarket) public {
+    constructor(uint256 _maxRunnersByMarket, uint256 _maxMarketsByEvent) public {
         maxRunnersByMarket = _maxRunnersByMarket;
+        maxMarketsByEvent = _maxMarketsByEvent;
         _genesis();
     }
 
@@ -57,6 +59,15 @@ contract BetexStorage {
     modifier isNewEvent(uint256 _eventId){
         uint256 eventIndex = eventsMapping[_eventId];
         require(eventIndex == 0, "Event already exists");
+        _;
+    }
+
+    /**
+    * @dev Verifica que sea un nuevo evento
+    */
+    modifier eventMustExist(uint256 _eventId){
+        uint256 eventIndex = eventsMapping[_eventId];
+        require(eventIndex > 0, "Event already exists");
         _;
     }
 
@@ -89,6 +100,17 @@ contract BetexStorage {
     }
 
     /**
+     * @dev Verfica que el evento se encuentre en un determinado estado
+     * @param _eventId eventId
+     * @param _requiredStatus estado requerido
+     */
+    modifier inEventStatus(uint256 _eventId, EventStatus _requiredStatus) {
+        require(getEventStatus(_eventId) == _requiredStatus, "Event status is incorrect");
+        _;
+    }
+
+
+    /**
     * @dev Verifica que sea un nuevo mercado
     */
     modifier marketMustExist(uint256 _marketId){
@@ -105,13 +127,21 @@ contract BetexStorage {
     }
 
     /**
+     * @dev Suspende un evento determinado
+     * @param _eventId eventId
+     */
+    function suspendEvent(uint256 _eventId) external onlyWhitelist() inEventStatus(_eventId, EventStatus.OPEN){
+        uint256 eventIndex = eventsMapping[_eventId];
+        events[eventIndex].eventStatus = EventStatus.SUSPENDED;
+    }
+    /**
      * @dev Abre un mercado determinado con n competidores o runners. Por control interno.
      * @param _eventId Id el evento de Laurasia
      * @param _marketId Id del mercado de Laurasia
      * @param _totalRunners total de competidores en el mercado
      */
     function openMarket( uint256 _eventId, uint256 _marketId, uint256 _totalRunners)
-    external noGenesis(_eventId, _marketId) isNewMarket(_marketId) {
+    external noGenesis(_eventId, _marketId) onlyWhitelist() isNewMarket(_marketId) {
         require(_totalRunners <= maxRunnersByMarket, "Too many runners");
         uint256 eventIndex = eventsMapping[_eventId];
         if (eventIndex == 0){
@@ -129,7 +159,7 @@ contract BetexStorage {
      * @param _marketRunnerHash hash del mercado
      */
     function addMarketRunner( uint256 _marketId, bytes32 _marketRunnerHash)
-    external inMarketStatus(_marketId, MarketStatus.OPEN){
+    external onlyWhitelist() inMarketStatus(_marketId, MarketStatus.OPEN){
         uint256 marketIndex = marketsMapping[_marketId];
         Market memory market = markets[marketIndex];
         require(marketRunnerHashes[marketIndex].length < market.totalRunners, "Adding too many runners");
@@ -148,12 +178,25 @@ contract BetexStorage {
      * @param _winnerMarketRunner hash del ganador del mercado
      */
     function resolverMarket(uint256 _marketId, bytes32 _winnerMarketRunner) external
-    inMarketStatus(_marketId, MarketStatus.READY) activeMarket(_winnerMarketRunner) {
+    onlyWhitelist() inMarketStatus(_marketId, MarketStatus.READY)
+    activeMarket(_winnerMarketRunner) {
         uint256 marketIndex = marketsMapping[_marketId];
         markets[marketIndex].marketStatus = MarketStatus.CLOSED;
         winners[_winnerMarketRunner] = true;
         emit Test("resolverMarket", "Mercado resuleto");
     }
+
+    /**
+     * @dev Resuelve un mercado determinado
+     * @param _marketId marketId
+     */
+    function suspendMarket(uint256 _marketId) external onlyWhitelist() {
+        uint256 marketIndex = marketsMapping[_marketId];
+        require(markets[marketIndex].marketStatus != MarketStatus.CLOSED, "Market is closed");
+        markets[marketIndex].marketStatus = MarketStatus.SUSPENDED;
+        emit Test("suspendMarket", "Mercado supendido");
+    }
+
 
     /**
      * @dev Verifica si un mercado existe
@@ -203,11 +246,30 @@ contract BetexStorage {
     }
 
     /**
+     * @dev obtiene el estado de un evento determinado
+     * @param _eventId eventId
+     */
+    function getEventStatus(uint256 _eventId) public eventMustExist(_eventId) view returns (EventStatus) {
+        uint256 eventIndex = eventsMapping[_eventId];
+        return events[eventIndex].eventStatus;
+    }
+
+    /**
+     * @dev Inicializa el contrato
+     * @param _betexCoreAddress Address del proxy de Betex Laurasia
+     * @param _betexLaurasiaAddress Address de Betex Core
+     */
+    function init(address _betexCoreAddress, address _betexLaurasiaAddress ) 
+        onInitialize() onlyOwner() public {
+        addToWhiteList(_betexCoreAddress);
+        addToWhiteList(_betexLaurasiaAddress);
+    }
+    /**
      * @dev Inicializa las estructuras de datos
      */
     function _genesis() private {
         uint256 GENESIS_INDEX = 0;
-        events.push(MarketEvent(true, EventStatus.CLOSED));
+        events.push(MarketEvent(true, EventStatus.SUSPENDED));
         eventsMapping[GENESIS_INDEX] = GENESIS_INDEX;
         markets.push(Market(true, MarketStatus.CLOSED,0));
         marketsMapping[GENESIS_INDEX] = GENESIS_INDEX;
