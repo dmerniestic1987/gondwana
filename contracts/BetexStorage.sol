@@ -133,6 +133,26 @@ contract BetexStorage is BetexAuthorization {
         uint256 eventIndex = eventsMapping[_eventId];
         events[eventIndex].eventStatus = EventStatus.SUSPENDED;
     }
+    
+    /**
+     * @dev Abre un mercado determinado con n competidores o runners. Por control interno.
+     * @param _eventId Id el evento de Laurasia
+     * @param _marketId Id del mercado de Laurasia
+     * @param _runnerHashes totalRunners
+     */
+    function openMarketWithRunners( uint256 _eventId, uint256 _marketId, bytes32[] calldata _runnerHashes)
+    external noGenesis(_eventId, _marketId) onlyWhitelist() isNewMarket(_marketId) {
+        require(_runnerHashes.length <= maxRunnersByMarket, "Too many runners");
+        uint256 eventIndex = eventsMapping[_eventId];
+        if (eventIndex == 0){
+            eventIndex = events.push(MarketEvent(true, EventStatus.OPEN)) - 1;
+            eventsMapping[_eventId] = eventIndex;
+        }
+        uint256 marketIndex = markets.push(Market(true, MarketStatus.READY, _runnerHashes.length)) - 1;
+        marketsMapping[_marketId] = marketIndex;
+        marketRunnerHashes[marketIndex] = _runnerHashes;
+    }
+
     /**
      * @dev Abre un mercado determinado con n competidores o runners. Por control interno.
      * @param _eventId Id el evento de Laurasia

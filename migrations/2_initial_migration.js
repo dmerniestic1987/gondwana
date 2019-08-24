@@ -1,16 +1,21 @@
 const BigNumber = require("bignumber.js");
-var BetexSelfExcluded = artifacts.require("./BetexSelfExcluded.sol");
-var BetexToken = artifacts.require("./BetexToken.sol");
-var BetexSettings = artifacts.require("./BetexSettings.sol");
-var BetexMobileGondwana = artifacts.require("./BetexMobileGondwana.sol");
-var BetexCore = artifacts.require("./BetexCore.sol");
-
+const BetexSelfExcluded = artifacts.require("./BetexSelfExcluded.sol");
+const BetexToken = artifacts.require("./BetexToken.sol");
+const BetexSettings = artifacts.require("./BetexSettings.sol");
+const BetexMobileGondwana = artifacts.require("./BetexMobileGondwana.sol");
+const BetexCore = artifacts.require("./BetexCore.sol");
+const BetexLaurasiaGondwana = artifacts.require("./BetexLaurasiaGondwana.sol");
+const BetexStorage = artifacts.require("./BetexStorage.sol");
+const MAX_MARKETS_PER_EVENT = 15;
+const MAX_RUNNERS_PER_MARKET = 3;
 module.exports = async function(deployer) {
   const PRECISION = 10 ** 18;
   const betexToken = await deployer.deploy(BetexToken);
   const betexSelfExcluded = await deployer.deploy(BetexSelfExcluded);
   const betexMobileGondwana = await deployer.deploy(BetexMobileGondwana);
   const betexCore = await deployer.deploy(BetexCore);
+  const betexLaurasiaGondwana = await deployer.deploy(BetexLaurasiaGondwana);
+  const betexStorage = await deployer.deploy(BetexStorage, MAX_RUNNERS_PER_MARKET, MAX_MARKETS_PER_EVENT);
 
   const defaultValues = {
     defaultMaxAmountWeiPerDay: web3.utils.toBN(
@@ -54,4 +59,6 @@ module.exports = async function(deployer) {
   );
 
   await betexCore.init(betexMobileGondwana.address, betexSettings.address);
+  await betexStorage.init(betexCore.address, betexLaurasiaGondwana.address);
+  await betexLaurasiaGondwana.init(betexStorage.address);
 };
