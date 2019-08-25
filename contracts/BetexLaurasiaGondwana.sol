@@ -9,7 +9,6 @@ import "./BetexStorage.sol";
 contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
     BetexStorage public betexStorage;
 
-    event OpenMarketEvent(uint256 _marketId, uint256 _runnersLength);
     /**
      * @dev Abre un mercado determinado con 2 competidores o runners.
      * @param _eventId Id el evento de Laurasia
@@ -23,7 +22,6 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
         runnerHashes[0] = _runnerHash01; 
         runnerHashes[1] = _runnerHash02; 
         betexStorage.openMarketWithRunners(_eventId, _marketId, runnerHashes);
-        emit OpenMarketEvent(_marketId, runnerHashes.length);
     }
 
     /**
@@ -41,7 +39,6 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
         runnerHashes[1] = _runnerHash02; 
         runnerHashes[2] = _runnerHash03; 
         betexStorage.openMarketWithRunners(_eventId, _marketId, runnerHashes);
-        emit OpenMarketEvent(_marketId, runnerHashes.length);
     }
 
     /**
@@ -49,7 +46,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * @param _marketId ID del mercado de Laurasia
      */
     function suspendMarket(uint256 _marketId) external {
-
+        betexStorage.suspendMarket(_marketId);
     }
 
     /**
@@ -66,7 +63,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * @param _winnerMarketRunnerHash hash del competidor ganador. sha3 (marketId + runnerId)
      */
     function resolveMarket(uint256 _marketId, bytes32 _winnerMarketRunnerHash) external {
-
+        betexStorage.resolveMarket(_marketId, _winnerMarketRunnerHash);
     }
 
     /**

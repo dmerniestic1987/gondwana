@@ -7,6 +7,7 @@ const MARKET_STATUS_OPEN = web3.utils.toBN(0);
 const MARKET_STATUS_READY = web3.utils.toBN(1);
 const MARKET_STATUS_CLOSED = web3.utils.toBN(2);
 const MARKET_STATUS_SUSPENDED = web3.utils.toBN(3);
+const MARKET_STATUS_RESOLVED = web3.utils.toBN(4);
 const MAX_MARKETS_BY_EVENT = 10;
 const MAX_RUNNERS_BY_MARKET = 3;
 let tx;
@@ -91,15 +92,28 @@ contract("BetexStorage", async accounts => {
         assert.isFalse(marketExist, "El mercado no debería existir");
       });
     });
-    describe("GIVEN el mercado se resuelve", async () => {
-      before(s.description, async () => {
-        tx = await betexStorage.resolverMarket(s.marketId, s.runners[1], { from: betexLaurasiaAddress });
+    describe("GIVEN se cierra el mercado", async () => {
+      before(async () => {
+        tx = await betexStorage.closeMarket(s.marketId, { from: betexLaurasiaAddress });
       });
+
       it("THEN el mercado debe quedar en estado closed", async () => {
         const marketStatus = await betexStorage.getMarketStatus(s.marketId);
         assert(
           marketStatus.eq(MARKET_STATUS_CLOSED),
           "El mercado no está CLOSED"
+        );
+      });
+    });
+    describe("GIVEN el mercado se resuelve", async () => {
+      before(s.description, async () => {
+        tx = await betexStorage.resolveMarket(s.marketId, s.runners[1], { from: betexLaurasiaAddress });
+      });
+      it("THEN el mercado debe quedar en estado closed", async () => {
+        const marketStatus = await betexStorage.getMarketStatus(s.marketId);
+        assert(
+          marketStatus.eq(MARKET_STATUS_RESOLVED),
+          "El mercado no está RESOLVED"
         );
       });
       it(`AND el runner ${s.runners[0]} debe ser perdedor`, async () => {
@@ -113,7 +127,7 @@ contract("BetexStorage", async accounts => {
     });
   });
 
-  describe("GIVEN se crea un nuevo mercado y luego se suspende", async () => {
+  describe("GIVEN se crea un nuevo mercado", async () => {
     const EVENT_TO_SUSPEND = 199191;
     const MARKET_TO_SUSPEND = 1212;
     before(async () => {

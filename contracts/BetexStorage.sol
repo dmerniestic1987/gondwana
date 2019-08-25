@@ -7,7 +7,7 @@ import "./BetexAuthorization.sol";
 contract BetexStorage is BetexAuthorization {
     enum BetType { BACK, LAY }
     enum BetStatus { OPEN, CLOSED, SUSPENDED, CHARGED }
-    enum MarketStatus { OPEN, READY, CLOSED, SUSPENDED }
+    enum MarketStatus { OPEN, READY, CLOSED, SUSPENDED, RESOLVED }
     enum EventStatus { OPEN, SUSPENDED }
 
     struct Market {
@@ -201,13 +201,29 @@ contract BetexStorage is BetexAuthorization {
      * @param _marketId marketId
      * @param _winnerMarketRunner hash del ganador del mercado
      */
-    function resolverMarket(uint256 _marketId, bytes32 _winnerMarketRunner) external
-    onlyWhitelist() inMarketStatus(_marketId, MarketStatus.READY) notEmptyRunnerHash(_winnerMarketRunner)
+    function resolveMarket(uint256 _marketId, bytes32 _winnerMarketRunner) external
+    onlyWhitelist() notEmptyRunnerHash(_winnerMarketRunner)
     activeMarketRunner(_winnerMarketRunner) {
         uint256 marketIndex = marketsMapping[_marketId];
-        markets[marketIndex].marketStatus = MarketStatus.CLOSED;
+        bool isReadyOrClosed = (markets[marketIndex].marketStatus == MarketStatus.READY || 
+                                markets[marketIndex].marketStatus == MarketStatus.CLOSED);
+        require(isReadyOrClosed, "Market in incorrect status");
+        markets[marketIndex].marketStatus = MarketStatus.RESOLVED;
         winners[_winnerMarketRunner] = true;
     }
+
+    /**
+     * @dev Cierra un mercado determinado. Signfica que ya no se pueden aceptar más apuestas
+     * y se está esperando el resultado del evento deportivo. Tipicamente los eventos de MMA o
+     * Boxeo solo aceptarán apuestas hasta antes que comience el combate.
+     * @param _marketId marketId
+     */
+    function closeMarket(uint256 _marketId) external
+    onlyWhitelist() inMarketStatus(_marketId, MarketStatus.READY) {
+        uint256 marketIndex = marketsMapping[_marketId];
+        markets[marketIndex].marketStatus = MarketStatus.CLOSED;
+    }
+
 
     /**
      * @dev Resuelve un mercado determinado
