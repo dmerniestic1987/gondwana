@@ -9,6 +9,7 @@ import "./BetexStorage.sol";
 contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
     BetexStorage public betexStorage;
 
+    event OpenMarketEvent(uint256 _marketId, uint256 _runnersLength);
     /**
      * @dev Abre un mercado determinado con 2 competidores o runners.
      * @param _eventId Id el evento de Laurasia
@@ -18,7 +19,11 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      */
     function openMarketWith2Runners(uint256 _eventId, uint256 _marketId, 
     bytes32 _runnerHash01, bytes32 _runnerHash02) external {
-
+        bytes32[] memory runnerHashes = new bytes32[](2);
+        runnerHashes[0] = _runnerHash01; 
+        runnerHashes[1] = _runnerHash02; 
+        betexStorage.openMarketWithRunners(_eventId, _marketId, runnerHashes);
+        emit OpenMarketEvent(_marketId, runnerHashes.length);
     }
 
     /**
@@ -31,14 +36,19 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      */
     function openMarketWith3Runners(uint256 _eventId, uint256 _marketId, 
     bytes32 _runnerHash01, bytes32 _runnerHash02, bytes32 _runnerHash03) external {
-
+        bytes32[] memory runnerHashes = new bytes32[](3);
+        runnerHashes[0] = _runnerHash01; 
+        runnerHashes[1] = _runnerHash02; 
+        runnerHashes[2] = _runnerHash03; 
+        betexStorage.openMarketWithRunners(_eventId, _marketId, runnerHashes);
+        emit OpenMarketEvent(_marketId, runnerHashes.length);
     }
 
     /**
      * @dev Suspende un mercado determinado, por ejemplo cuando se anula un evento.
      * @param _marketId ID del mercado de Laurasia
      */
-    function suspendMarket(uint256 _marketId) external{
+    function suspendMarket(uint256 _marketId) external {
 
     }
 
@@ -100,8 +110,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * @dev Inicializa el contrato
      * @param _betexStorageAddress Dirección Betex Storage
      */
-    function init(address _betexStorageAddress) 
-    onInitialize() onlyOwner() public {
+    function init(address _betexStorageAddress) onInitialize() onlyOwner() public {
         betexStorage = BetexStorage(_betexStorageAddress);
     }
 }

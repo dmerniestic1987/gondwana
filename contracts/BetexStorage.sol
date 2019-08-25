@@ -120,11 +120,18 @@ contract BetexStorage is BetexAuthorization {
    /**
     * @dev Verifica que sea un nuevo mercado
     */
-    modifier activeMarket(bytes32 _marketRunnerHash){
+    modifier activeMarketRunner(bytes32 _marketRunnerHash){
         require(activeMarketRunners[_marketRunnerHash], "Market Runner does not exist");
         _;
     }
 
+    /**
+     * @dev Verifica que la dirección no venga vacía
+     */
+    modifier notEmptyRunnerHash(bytes32 _address){
+        require(_address != 0x0, "Empty runner hash");
+        _;
+    }
     /**
      * @dev Suspende un evento determinado
      * @param _eventId eventId
@@ -177,7 +184,7 @@ contract BetexStorage is BetexAuthorization {
      * @param _marketRunnerHash hash del mercado
      */
     function addMarketRunner( uint256 _marketId, bytes32 _marketRunnerHash)
-    external onlyWhitelist() inMarketStatus(_marketId, MarketStatus.OPEN){
+    external onlyWhitelist() inMarketStatus(_marketId, MarketStatus.OPEN) notEmptyRunnerHash(_marketRunnerHash){
         uint256 marketIndex = marketsMapping[_marketId];
         Market memory market = markets[marketIndex];
         require(marketRunnerHashes[marketIndex].length < market.totalRunners, "Adding too many runners");
@@ -195,8 +202,8 @@ contract BetexStorage is BetexAuthorization {
      * @param _winnerMarketRunner hash del ganador del mercado
      */
     function resolverMarket(uint256 _marketId, bytes32 _winnerMarketRunner) external
-    onlyWhitelist() inMarketStatus(_marketId, MarketStatus.READY)
-    activeMarket(_winnerMarketRunner) {
+    onlyWhitelist() inMarketStatus(_marketId, MarketStatus.READY) notEmptyRunnerHash(_winnerMarketRunner)
+    activeMarketRunner(_winnerMarketRunner) {
         uint256 marketIndex = marketsMapping[_marketId];
         markets[marketIndex].marketStatus = MarketStatus.CLOSED;
         winners[_winnerMarketRunner] = true;
@@ -206,7 +213,7 @@ contract BetexStorage is BetexAuthorization {
      * @dev Resuelve un mercado determinado
      * @param _marketId marketId
      */
-    function suspendMarket(uint256 _marketId) external onlyWhitelist() {
+    function suspendMarket(uint256 _marketId) external onlyWhitelist() marketMustExist(_marketId) {
         uint256 marketIndex = marketsMapping[_marketId];
         require(markets[marketIndex].marketStatus != MarketStatus.CLOSED, "Market is closed");
         markets[marketIndex].marketStatus = MarketStatus.SUSPENDED;
@@ -247,7 +254,7 @@ contract BetexStorage is BetexAuthorization {
      * @param _marketRunnerHash hash del mercado
      * @return true si es ganador, false de contrario
      */
-    function isWinner(bytes32 _marketRunnerHash) public view returns(bool) {
+    function isWinner(bytes32 _marketRunnerHash) public view notEmptyRunnerHash(_marketRunnerHash) returns(bool) {
         return winners[_marketRunnerHash];
     }
 
