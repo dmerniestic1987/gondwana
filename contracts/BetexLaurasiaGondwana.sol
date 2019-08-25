@@ -17,7 +17,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * @param _runnerHash02 Hash del market runner 2
      */
     function openMarketWith2Runners(uint256 _eventId, uint256 _marketId, 
-    bytes32 _runnerHash01, bytes32 _runnerHash02) external {
+    bytes32 _runnerHash01, bytes32 _runnerHash02) external onlyWhitelist(){
         bytes32[] memory runnerHashes = new bytes32[](2);
         runnerHashes[0] = _runnerHash01; 
         runnerHashes[1] = _runnerHash02; 
@@ -33,7 +33,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * @param _runnerHash03 Hash del market runner 3
      */
     function openMarketWith3Runners(uint256 _eventId, uint256 _marketId, 
-    bytes32 _runnerHash01, bytes32 _runnerHash02, bytes32 _runnerHash03) external {
+    bytes32 _runnerHash01, bytes32 _runnerHash02, bytes32 _runnerHash03) external onlyWhitelist(){
         bytes32[] memory runnerHashes = new bytes32[](3);
         runnerHashes[0] = _runnerHash01; 
         runnerHashes[1] = _runnerHash02; 
@@ -45,7 +45,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * @dev Suspende un mercado determinado, por ejemplo cuando se anula un evento.
      * @param _marketId ID del mercado de Laurasia
      */
-    function suspendMarket(uint256 _marketId) external {
+    function suspendMarket(uint256 _marketId) external onlyWhitelist(){
         betexStorage.suspendMarket(_marketId);
     }
 
@@ -53,7 +53,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * @dev Cierra un mercado determinado. Significa que ya no se aceptan más apuestas
      * @param _marketId ID del mercado de Laurasia
      */
-    function closeMarket(uint256 _marketId) external {
+    function closeMarket(uint256 _marketId) external onlyWhitelist(){
         betexStorage.closeMarket(_marketId);
     }
 
@@ -62,7 +62,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * @param _marketId ID del mercado de Laurasia
      * @param _winnerMarketRunnerHash hash del competidor ganador. sha3 (marketId + runnerId)
      */
-    function resolveMarket(uint256 _marketId, bytes32 _winnerMarketRunnerHash) external {
+    function resolveMarket(uint256 _marketId, bytes32 _winnerMarketRunnerHash) external onlyWhitelist(){
         betexStorage.resolveMarket(_marketId, _winnerMarketRunnerHash);
     }
 
@@ -90,7 +90,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * antes del inicio programado
      * @param _eventId ID del evento de Laurasia
      */
-    function closeEvent(uint256 _eventId) external {
+    function closeEvent(uint256 _eventId) external onlyWhitelist(){
         betexStorage.closeEvent(_eventId);
     }
 
@@ -99,7 +99,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * de un partido de fútbol o un combate deportivo.
      * @param _eventId ID del mercado de Laurasia
      */
-    function suspendEvent(uint256 _eventId) external {
+    function suspendEvent(uint256 _eventId) external onlyWhitelist(){
         betexStorage.suspendEvent(_eventId);
     }
 
