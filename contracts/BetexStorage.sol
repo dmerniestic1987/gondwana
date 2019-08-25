@@ -8,7 +8,7 @@ contract BetexStorage is BetexAuthorization {
     enum BetType { BACK, LAY }
     enum BetStatus { OPEN, CLOSED, SUSPENDED, CHARGED }
     enum MarketStatus { OPEN, READY, CLOSED, SUSPENDED, RESOLVED }
-    enum EventStatus { OPEN, SUSPENDED }
+    enum EventStatus { OPEN, CLOSED, SUSPENDED }
 
     struct Market {
         bool doesExist;
@@ -140,6 +140,15 @@ contract BetexStorage is BetexAuthorization {
         uint256 eventIndex = eventsMapping[_eventId];
         events[eventIndex].eventStatus = EventStatus.SUSPENDED;
     }
+
+    /**
+     * @dev Cierra un evento determinado
+     * @param _eventId eventId
+     */
+    function closeEvent(uint256 _eventId) external onlyWhitelist() inEventStatus(_eventId, EventStatus.OPEN){
+        uint256 eventIndex = eventsMapping[_eventId];
+        events[eventIndex].eventStatus = EventStatus.CLOSED;
+    }
     
     /**
      * @dev Abre un mercado determinado con n competidores o runners. Por control interno.
@@ -235,7 +244,13 @@ contract BetexStorage is BetexAuthorization {
         markets[marketIndex].marketStatus = MarketStatus.SUSPENDED;
     }
 
-
+    /**
+     * @dev Verificia que un runner de un mercado determinado exista en la plataforma
+     * @param _marketRunnerHash hash
+     */
+    function isActiveMarketRunner(bytes32 _marketRunnerHash) public view notEmptyRunnerHash(_marketRunnerHash) returns(bool) {
+        return activeMarketRunners[_marketRunnerHash];
+    }
     /**
      * @dev Verifica si un mercado existe
      * @param _marketId marketId

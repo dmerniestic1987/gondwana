@@ -54,7 +54,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * @param _marketId ID del mercado de Laurasia
      */
     function closeMarket(uint256 _marketId) external {
-
+        betexStorage.closeMarket(_marketId);
     }
 
     /**
@@ -72,7 +72,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * @return true si es ganador, false de lo contrario
      */
     function isWinner(bytes32 _marketRunnerHash) external view returns(bool) {
-
+        return betexStorage.isWinner(_marketRunnerHash);
     }
 
     /**
@@ -81,7 +81,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * @return true si existe, false de lo contrario
      */
     function marketRunnerExists(bytes32 _marketRunnerHash) external view returns(bool) {
-        return true;
+        return betexStorage.isActiveMarketRunner(_marketRunnerHash);
     }
 
     /**
@@ -91,7 +91,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * @param _eventId ID del evento de Laurasia
      */
     function closeEvent(uint256 _eventId) external {
-
+        betexStorage.closeEvent(_eventId);
     }
 
     /**
@@ -100,7 +100,7 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * @param _eventId ID del mercado de Laurasia
      */
     function suspendEvent(uint256 _eventId) external {
-
+        betexStorage.suspendEvent(_eventId);
     }
 
     /**
