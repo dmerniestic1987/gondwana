@@ -1,6 +1,6 @@
 {
   "name": "betex-gondwana",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "homepage": "https://github.com/dmerniestic1987/gondwana",
   "description": "Betex Gondwana",
@@ -60,8 +60,8 @@
     "openzeppelin-solidity": "2.3.0",
     "openzeppelin-test-helpers": "0.4.0",
     "prettier": "1.17.1",
-    "solc": "0.5.8",
-    "truffle": "5.0.19",
+    "solc": "0.5.10",
+    "truffle": "5.0.33",
     "truffle-hdwallet-provider": "1.0.9",
     "web3": "1.0.0-beta.55"
   }
