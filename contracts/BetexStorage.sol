@@ -42,6 +42,7 @@ contract BetexStorage is BetexAuthorization {
     }
 
     mapping(uint256 => uint256) private eventsMapping;
+    mapping(uint256 => uint256[]) private eventMarkets;
     MarketEvent[] private events;
 
     mapping(uint256 => uint256) private marketsMapping;
@@ -60,6 +61,17 @@ contract BetexStorage is BetexAuthorization {
         _genesis();
     }
 
+    /**
+     * Verifica que no se sobre pase la cantidad máxima de markets por eventos
+     */
+    modifier limitMaxMarketPerEvent(uint256 _eventId) {
+        uint256 eventIndex = eventsMapping[_eventId];
+        if (eventIndex != 0) {
+            require (eventMarkets[eventIndex].length <= maxMarketsByEvent, 
+                    "There are too many markets for the event");
+        }
+        _;
+    }
     /**
     * @dev Verifica que sea un nuevo evento
     */
@@ -147,6 +159,10 @@ contract BetexStorage is BetexAuthorization {
     function suspendEvent(uint256 _eventId) external onlyWhitelist() inEventStatus(_eventId, EventStatus.OPEN){
         uint256 eventIndex = eventsMapping[_eventId];
         events[eventIndex].eventStatus = EventStatus.SUSPENDED;
+        for (uint i = 0; i < eventMarkets[eventIndex].length; i++){
+            uint256 marketIndexToClose = eventMarkets[eventIndex][i];
+            markets[marketIndexToClose].marketStatus = MarketStatus.SUSPENDED;
+        }
         emit SuspendEvent(_eventId);
     }
 
@@ -157,6 +173,10 @@ contract BetexStorage is BetexAuthorization {
     function closeEvent(uint256 _eventId) external onlyWhitelist() inEventStatus(_eventId, EventStatus.OPEN){
         uint256 eventIndex = eventsMapping[_eventId];
         events[eventIndex].eventStatus = EventStatus.CLOSED;
+        for (uint i = 0; i < eventMarkets[eventIndex].length; i++){
+            uint256 marketIndexToClose = eventMarkets[eventIndex][i];
+            markets[marketIndexToClose].marketStatus = MarketStatus.CLOSED;
+        }
         emit CloseEvent(_eventId);
     }
     
@@ -167,7 +187,7 @@ contract BetexStorage is BetexAuthorization {
      * @param _runnerHashes totalRunners
      */
     function openMarketWithRunners( uint256 _eventId, uint256 _marketId, bytes32[] calldata _runnerHashes)
-    external noGenesis(_eventId, _marketId) onlyWhitelist() isNewMarket(_marketId) {
+    external noGenesis(_eventId, _marketId) onlyWhitelist() isNewMarket(_marketId) limitMaxMarketPerEvent(_eventId) {
         require(_runnerHashes.length <= maxRunnersByMarket, "Too many runners");
         uint256 eventIndex = eventsMapping[_eventId];
         if (eventIndex == 0){
@@ -177,6 +197,7 @@ contract BetexStorage is BetexAuthorization {
         uint256 marketIndex = markets.push(Market(true, MarketStatus.READY, _runnerHashes.length)) - 1;
         marketsMapping[_marketId] = marketIndex;
         marketRunnerHashes[marketIndex] = _runnerHashes;
+        eventMarkets[eventIndex].push(marketIndex);
         emit OpenMarket(_eventId, _marketId, MarketStatus.READY);
     }
 
@@ -187,7 +208,7 @@ contract BetexStorage is BetexAuthorization {
      * @param _totalRunners total de competidores en el mercado
      */
     function openMarket( uint256 _eventId, uint256 _marketId, uint256 _totalRunners)
-    external noGenesis(_eventId, _marketId) onlyWhitelist() isNewMarket(_marketId) {
+    external noGenesis(_eventId, _marketId) onlyWhitelist() isNewMarket(_marketId) limitMaxMarketPerEvent(_eventId) {
         require(_totalRunners <= maxRunnersByMarket, "Too many runners");
         uint256 eventIndex = eventsMapping[_eventId];
         if (eventIndex == 0){
@@ -196,6 +217,7 @@ contract BetexStorage is BetexAuthorization {
         }
         uint256 marketIndex = markets.push(Market(true, MarketStatus.OPEN, _totalRunners)) - 1;
         marketsMapping[_marketId] = marketIndex;
+        eventMarkets[eventIndex].push(marketIndex);
         emit OpenMarket(_eventId, _marketId, MarketStatus.OPEN);
     }
 
@@ -243,8 +265,7 @@ contract BetexStorage is BetexAuthorization {
      */
     function closeMarket(uint256 _marketId) external
     onlyWhitelist() inMarketStatus(_marketId, MarketStatus.READY) {
-        uint256 marketIndex = marketsMapping[_marketId];
-        markets[marketIndex].marketStatus = MarketStatus.CLOSED;
+        _updateMarketStatus(_marketId, MarketStatus.CLOSED);
         emit CloseMarket(_marketId);
     }
 
@@ -256,9 +277,19 @@ contract BetexStorage is BetexAuthorization {
     function suspendMarket(uint256 _marketId) external onlyWhitelist() marketMustExist(_marketId) {
         uint256 marketIndex = marketsMapping[_marketId];
         require(markets[marketIndex].marketStatus != MarketStatus.CLOSED, "Market is closed");
-        markets[marketIndex].marketStatus = MarketStatus.SUSPENDED;
+        _updateMarketStatus(_marketId, MarketStatus.SUSPENDED);
         emit SuspendMarket(_marketId);
     }
+
+    /**
+     * @dev Actualiza el estado de un mercado determinado
+     * @param _marketId marketId
+     */
+    function _updateMarketStatus(uint256 _marketId, MarketStatus marketStatus) private {
+        uint256 marketIndex = marketsMapping[_marketId];
+        markets[marketIndex].marketStatus = marketStatus;
+    }
+
 
     /**
      * @dev Verificia que un runner de un mercado determinado exista en la plataforma
