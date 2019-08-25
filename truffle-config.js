@@ -91,7 +91,7 @@ module.exports = {
         return new HDWalletProvider(mnemonic, "https://sokol.poa.network");
       },
       network_id: 77,
-      gas: 500000,
+      gas: 5500000,
       gasPrice: 1000000000
     },
     mainnet: {
