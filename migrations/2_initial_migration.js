@@ -6,6 +6,10 @@ const BetexMobileGondwana = artifacts.require("./BetexMobileGondwana.sol");
 const BetexCore = artifacts.require("./BetexCore.sol");
 const BetexLaurasiaGondwana = artifacts.require("./BetexLaurasiaGondwana.sol");
 const BetexStorage = artifacts.require("./BetexStorage.sol");
+const config = {
+  laurasiaAddress : "0x6e89F6fa95D517eE7a0a293D8A1d3C502bfB0701"
+
+}
 const MAX_MARKETS_PER_EVENT = 15;
 const MAX_RUNNERS_PER_MARKET = 3;
 module.exports = async function(deployer) {
@@ -60,5 +64,5 @@ module.exports = async function(deployer) {
 
   await betexCore.init(betexMobileGondwana.address, betexSettings.address);
   await betexStorage.init(betexCore.address, betexLaurasiaGondwana.address);
-  await betexLaurasiaGondwana.init(betexStorage.address);
+  await betexLaurasiaGondwana.init(betexStorage.address, config.laurasiaAddress);
 };

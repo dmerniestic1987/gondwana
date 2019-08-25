@@ -107,7 +107,9 @@ contract BetexLaurasiaGondwana is IBetexLaurasiaGondwana,BetexAuthorization {
      * @dev Inicializa el contrato
      * @param _betexStorageAddress Dirección Betex Storage
      */
-    function init(address _betexStorageAddress) onInitialize() onlyOwner() public {
+    function init(address _betexStorageAddress, address _laurasiaWalletAddress) 
+    onInitialize() onlyOwner() public {
         betexStorage = BetexStorage(_betexStorageAddress);
+        addToWhiteList(_laurasiaWalletAddress);
     }
 }
