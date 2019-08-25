@@ -4,15 +4,28 @@ pragma solidity 0.5.10;
  * @dev Es la interfaz entre BetexLaursia y Gondwana. Permite registrar y
  * y consultar eventos deportivos y resultados.
  */
-interface IBetexMobileGondwana {
+interface IBetexLaurasiaGondwana {
 
     /**
-     * @dev Abre un mercado determinado con n competidores o runners. Por control interno.
+     * @dev Abre un mercado determinado con 2 competidores o runners.
      * @param _eventId Id el evento de Laurasia
      * @param _marketId ID del mercado de Laurasia
-     * @param _marketRunnerHashes Array con los Hashes de los competidores por market. Máximo 3 elementos de sha3 (marketId + runnerId)
+     * @param _runnerHash01 Hash del market runner 1
+     * @param _runnerHash02 Hash del market runner 2
      */
-    function openMarket(uint256 _eventId, uint256 _marketId, bytes32[] calldata _marketRunnerHashes) external;
+    function openMarketWith2Runners(uint256 _eventId, uint256 _marketId, 
+    bytes32 _runnerHash01, bytes32 _runnerHash02) external;
+
+    /**
+     * @dev Abre un mercado determinado con n competidores o runners.
+     * @param _eventId Id el evento de Laurasia
+     * @param _marketId ID del mercado de Laurasia
+     * @param _runnerHash01 Hash del market runner 1
+     * @param _runnerHash02 Hash del market runner 2
+     * @param _runnerHash03 Hash del market runner 3
+     */
+    function openMarketWith3Runners(uint256 _eventId, uint256 _marketId, 
+    bytes32 _runnerHash01, bytes32 _runnerHash02, bytes32 _runnerHash03) external;
 
     /**
      * @dev Suspende un mercado determinado, por ejemplo cuando se anula un evento.

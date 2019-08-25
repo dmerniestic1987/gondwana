@@ -1,7 +1,6 @@
 const BigNumber = require("bignumber.js");
 const assert = require("chai").assert;
 const truffleAssert = require("truffle-assertions");
-const Web3 = require("web3");
 var BetexSettings = artifacts.require("./BetexSettings.sol");
 var BetexMobileGondwana = artifacts.require("./BetexMobileGondwana.sol");
 var BetexSelfExcluded = artifacts.require("BetexSelfExcluded.sol");
