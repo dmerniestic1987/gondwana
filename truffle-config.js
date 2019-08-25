@@ -51,7 +51,7 @@ module.exports = {
       provider: () =>
         new HDWalletProvider(
           mnemonic,
-          "https://kovan.infura.io/${infuraKey}",
+          `https://kovan.infura.io/v3/${infuraKey}`,
           0
         ),
       network_id: 42, // kovan's id
@@ -64,7 +64,7 @@ module.exports = {
       provider: () =>
         new HDWalletProvider(
           mnemonic,
-          "https://ropsten.infura.io/${infuraKey}",
+          `https://ropsten.infura.io/v3/${infuraKey}`,
           0
         ),
       network_id: 3, // Ropsten's id
@@ -77,7 +77,7 @@ module.exports = {
       provider: () =>
         new HDWalletProvider(
           mnemonic,
-          "https://rinkeby.infura.io/${infuraKey}",
+          `https://rinkeby.infura.io/v3/${infuraKey}`,
           0
         ),
       network_id: 4, // rinkeby's id
@@ -98,7 +98,7 @@ module.exports = {
       provider: () =>
         new HDWalletProvider(
           mnemonic,
-          "https://mainnet.infura.io/${infuraKey}",
+          `https://mainnet.infura.io/v3/${infuraKey}`,
           0
         ),
       network_id: 1, // rinkeby's id
