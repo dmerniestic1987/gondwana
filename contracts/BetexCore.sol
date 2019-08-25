@@ -1,6 +1,7 @@
 pragma solidity 0.5.10;
 import "./BetexAuthorization.sol";
 import "./BetexSettings.sol";
+import "./BetexStorage.sol";
 
 /**
  * @dev BetexCore contiene la lógica para poder colocar apuestas, cobrarrlas y
@@ -9,7 +10,8 @@ import "./BetexSettings.sol";
   //TODO: 08/07/2019 Los seteos críticos deberían hacerse a través de contratos de votación
 contract BetexCore is BetexAuthorization {
     BetexSettings public betexSettings;
-    
+    BetexStorage public betexStorage;
+
     event P2PBetCharged( address indexed _bettor, 
                          uint256 _betId, 
                          uint256 _amountCharged, 
@@ -176,10 +178,12 @@ contract BetexCore is BetexAuthorization {
      * @dev Inicializa el contrato
      * @param _betexMobileAddress Address del contrato de betex mobile
      * @param _betexSetting Address de BetexSetting
+     * @param _betexStorage Address del contrato de storage
      */
-    function init(address _betexMobileAddress, address _betexSetting ) 
+    function init(address _betexMobileAddress, address _betexSetting, address _betexStorage ) 
         onInitialize() onlyOwner() public {
-        betexSettings = BetexSettings(betexSettings);
+        betexSettings = BetexSettings(_betexSetting);
+        betexStorage = BetexStorage(_betexStorage);
         addToWhiteList(_betexMobileAddress);
     }
 }

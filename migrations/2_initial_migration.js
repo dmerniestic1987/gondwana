@@ -62,7 +62,7 @@ module.exports = async function(deployer) {
     betexCore.address
   );
 
-  await betexCore.init(betexMobileGondwana.address, betexSettings.address);
+  await betexCore.init(betexMobileGondwana.address, betexSettings.address, betexStorage.address);
   await betexStorage.init(betexCore.address, betexLaurasiaGondwana.address);
   await betexLaurasiaGondwana.init(betexStorage.address, config.laurasiaAddress);
 };
