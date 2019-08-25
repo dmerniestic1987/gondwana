@@ -10,6 +10,14 @@ contract BetexStorage is BetexAuthorization {
     enum MarketStatus { OPEN, READY, CLOSED, SUSPENDED, RESOLVED }
     enum EventStatus { OPEN, CLOSED, SUSPENDED }
 
+    event OpenMarket(uint256 eventId, uint256 marketId, MarketStatus marketStatus);
+    event CloseMarket(uint256 marketId);
+    event ResolveMarket(uint256 marketId, bytes32 winnerMarketRunnerHash);
+    event SuspendMarket(uint256 marketId);
+    event CloseEvent(uint256 eventId);
+    event SuspendEvent(uint256 eventId);
+    event MarketRunnerAdded(uint256 marketId, bytes32 marketRunnerHash, MarketStatus marketStatus);
+
     struct Market {
         bool doesExist;
         MarketStatus marketStatus;
@@ -139,6 +147,7 @@ contract BetexStorage is BetexAuthorization {
     function suspendEvent(uint256 _eventId) external onlyWhitelist() inEventStatus(_eventId, EventStatus.OPEN){
         uint256 eventIndex = eventsMapping[_eventId];
         events[eventIndex].eventStatus = EventStatus.SUSPENDED;
+        emit SuspendEvent(_eventId);
     }
 
     /**
@@ -148,6 +157,7 @@ contract BetexStorage is BetexAuthorization {
     function closeEvent(uint256 _eventId) external onlyWhitelist() inEventStatus(_eventId, EventStatus.OPEN){
         uint256 eventIndex = eventsMapping[_eventId];
         events[eventIndex].eventStatus = EventStatus.CLOSED;
+        emit CloseEvent(_eventId);
     }
     
     /**
@@ -167,6 +177,7 @@ contract BetexStorage is BetexAuthorization {
         uint256 marketIndex = markets.push(Market(true, MarketStatus.READY, _runnerHashes.length)) - 1;
         marketsMapping[_marketId] = marketIndex;
         marketRunnerHashes[marketIndex] = _runnerHashes;
+        emit OpenMarket(_eventId, _marketId, MarketStatus.READY);
     }
 
     /**
@@ -185,6 +196,7 @@ contract BetexStorage is BetexAuthorization {
         }
         uint256 marketIndex = markets.push(Market(true, MarketStatus.OPEN, _totalRunners)) - 1;
         marketsMapping[_marketId] = marketIndex;
+        emit OpenMarket(_eventId, _marketId, MarketStatus.OPEN);
     }
 
     /**
@@ -203,6 +215,7 @@ contract BetexStorage is BetexAuthorization {
         if (marketRunnerHashes[marketIndex].length == market.totalRunners){
             markets[marketIndex].marketStatus = MarketStatus.READY;
         }
+        emit MarketRunnerAdded(_marketId, _marketRunnerHash, markets[marketIndex].marketStatus);
     }
 
     /**
@@ -219,6 +232,7 @@ contract BetexStorage is BetexAuthorization {
         require(isReadyOrClosed, "Market in incorrect status");
         markets[marketIndex].marketStatus = MarketStatus.RESOLVED;
         winners[_winnerMarketRunner] = true;
+        emit ResolveMarket(_marketId, _winnerMarketRunner);
     }
 
     /**
@@ -231,6 +245,7 @@ contract BetexStorage is BetexAuthorization {
     onlyWhitelist() inMarketStatus(_marketId, MarketStatus.READY) {
         uint256 marketIndex = marketsMapping[_marketId];
         markets[marketIndex].marketStatus = MarketStatus.CLOSED;
+        emit CloseMarket(_marketId);
     }
 
 
@@ -242,6 +257,7 @@ contract BetexStorage is BetexAuthorization {
         uint256 marketIndex = marketsMapping[_marketId];
         require(markets[marketIndex].marketStatus != MarketStatus.CLOSED, "Market is closed");
         markets[marketIndex].marketStatus = MarketStatus.SUSPENDED;
+        emit SuspendMarket(_marketId);
     }
 
     /**
