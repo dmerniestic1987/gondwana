@@ -61,15 +61,15 @@ npm run truffle-migrate-rsk-testnet
 Actualmente la versión 0.4 está deployada en 2 redes de testnet: Sokol (POA) y Rinkeby (Ethereum).
 
 ### Ethereum Rinkeby - Testnet
-BetexToken: [0x4459C08d375254653aDc0546Efe7627A9F55fC19] (https://rinkeby.etherscan.io/address/0x4459C08d375254653aDc0546Efe7627A9F55fC19)
-BetexSelfExcluded: [0x5aC163aEDfb8E5e404eD070Bf3951aE7Da408d85] (https://rinkeby.etherscan.io/address/0x5aC163aEDfb8E5e404eD070Bf3951aE7Da408d85)
-BetexMobileGondwana: [0x0C4152a4D8d466dc280ee6569e729602466B120B] (https://rinkeby.etherscan.io/address/0x0C4152a4D8d466dc280ee6569e729602466B120B)
-BetexLaurasiaGondwana: [0x22F831C4E38d876b246B368C14e76001A0D2dd46] (https://rinkeby.etherscan.io/address/0x22F831C4E38d876b246B368C14e76001A0D2dd46)
-BetexSettings: [0xB43CbEd40bd711B72221358F39a2F61C52BAa577] (https://rinkeby.etherscan.io/address/0xB43CbEd40bd711B72221358F39a2F61C52BAa577)
+BetexToken: [0x4A3e76d5aAEEE68eB1190207E234C35D27DBDAA2] (https://rinkeby.etherscan.io/address/0x4A3e76d5aAEEE68eB1190207E234C35D27DBDAA2)
+BetexSelfExcluded: [0x176D291324d21B8a0cfE6b4eC3B271e6Aad909FA] (https://rinkeby.etherscan.io/address/0x176D291324d21B8a0cfE6b4eC3B271e6Aad909FA)
+BetexMobileGondwana: [0x1e4D32a1EA1503ba6a6af338F91F821e561503af] (https://rinkeby.etherscan.io/address/0x1e4D32a1EA1503ba6a6af338F91F821e561503af)
+BetexLaurasiaGondwana: [0x0dAB1918277CD206D29E4601F2057136D3255816] (https://rinkeby.etherscan.io/address/0x0dAB1918277CD206D29E4601F2057136D3255816)
+BetexSettings: [0x82c6d1fdA7c4f55AC37466820b2598978B41113a] (https://rinkeby.etherscan.io/address/0x82c6d1fdA7c4f55AC37466820b2598978B41113a)
 
 ### POA SOKOL - Testnet
-BetexToken: [0x7E05C42Fd1ba071128afd38978E91Fde78712FF7] (https://blockscout.com/poa/sokol/address/0x7e05c42fd1ba071128afd38978e91fde78712ff7)
-BetexSelfExcluded: [0x02D7D0CC599D19332cf8ED42b8C5e1bEF9cE19FA] (https://blockscout.com/poa/sokol/address/0x02D7D0CC599D19332cf8ED42b8C5e1bEF9cE19FA)
-BetexMobileGondwana: [0xcD302630700f0D857EC30D02c16Bb62BFACb6B6a] (https://blockscout.com/poa/sokol/address/0xcD302630700f0D857EC30D02c16Bb62BFACb6B6a)
-BetexLaurasiaGondwana: [0x60942DE4C41053e40f6Ff4eed16f778dB06760bB] (https://blockscout.com/poa/sokol/address/0x60942DE4C41053e40f6Ff4eed16f778dB06760bB)
-BetexSettings: [0x0b6E99f9B328D05F2AD96c31b7EE82bEa82E2C2C] (https://blockscout.com/poa/sokol/address/0x0b6E99f9B328D05F2AD96c31b7EE82bEa82E2C2C)
+BetexToken: [0x047cb89D54c0cD25739a4b6CC486E8aCcD080cDc] (https://blockscout.com/poa/sokol/address/0x047cb89D54c0cD25739a4b6CC486E8aCcD080cDc)
+BetexSelfExcluded: [0x9E3DF1843bE5Cb87848b215ce9742471E40EA5C6] (https://blockscout.com/poa/sokol/address/0x9E3DF1843bE5Cb87848b215ce9742471E40EA5C6)
+BetexMobileGondwana: [0xC9F30D8e30D19cf5D7EA2052fa0D087c94028278] (https://blockscout.com/poa/sokol/address/0xC9F30D8e30D19cf5D7EA2052fa0D087c94028278)
+BetexLaurasiaGondwana: [0x1826ab56d2a7D79052C9A01874970eC30897a18E] (https://blockscout.com/poa/sokol/address/0x1826ab56d2a7D79052C9A01874970eC30897a18E)
+BetexSettings: [0xD8D51C45029Da9E95a4722C6BCB2EC1284f4218D] (https://blockscout.com/poa/sokol/address/0xD8D51C45029Da9E95a4722C6BCB2EC1284f4218D)
