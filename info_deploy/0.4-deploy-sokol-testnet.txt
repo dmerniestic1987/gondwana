@@ -1,15 +1,22 @@
+Starting migrations...
+======================
+> Network name:    'poaSokolTestnet'
+> Network id:      77
+> Block gas limit: 0x7a1200
+
+
 1_initial_migration.js
 ======================
 
    Deploying 'Migrations'
    ----------------------
-   > transaction hash:    0x196f00fb209f0bc39a6206467146e0cfbe16f2e3debd43e82e9eb68b164217aa
+   > transaction hash:    0x9322554da285d135d5130fae52e56369426b7827b7545180201d4dc001355789
    > Blocks: 0            Seconds: 0
-   > contract address:    0x39CEba030DDC14223D2805299DAf3916d59EbF0d
-   > block number:        10430386
-   > block timestamp:     1566771435
+   > contract address:    0xB2fc3D06E8267973a7e0cdB6eB414959EEbA062C
+   > block number:        10449496
+   > block timestamp:     1566872040
    > account:             0xf12a2f2C500194f9780199E9fc2503AfF856d4db
-   > balance:             2.499809018
+   > balance:             3.98823471
    > gas used:            190982
    > gas price:           1 gwei
    > value sent:          0 ETH
@@ -27,28 +34,28 @@
 
    Deploying 'BetexToken'
    ----------------------
-   > transaction hash:    0x61585b3fd0c176dcc43e64491e4ff69de91f9a637126d56f86a34b7d53cbd5cd
-   > Blocks: 1            Seconds: 8
-   > contract address:    0x7E05C42Fd1ba071128afd38978E91Fde78712FF7
-   > block number:        10430389
-   > block timestamp:     1566771455
+   > transaction hash:    0xe79841cde8bc33e6c9aaae6223fbaff9009d83103a10acf13878af099ba5a4ef
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x047cb89D54c0cD25739a4b6CC486E8aCcD080cDc
+   > block number:        10449498
+   > block timestamp:     1566872055
    > account:             0xf12a2f2C500194f9780199E9fc2503AfF856d4db
-   > balance:             2.498638451
-   > gas used:            1128628
+   > balance:             4.487034379
+   > gas used:            1158392
    > gas price:           1 gwei
    > value sent:          0 ETH
-   > total cost:          0.001128628 ETH
+   > total cost:          0.001158392 ETH
 
 
    Deploying 'BetexSelfExcluded'
    -----------------------------
-   > transaction hash:    0xc81fe6153472b64138907629e69562e2b06aa237583455a85bdce0f9c0357636
-   > Blocks: 0            Seconds: 0
-   > contract address:    0x02D7D0CC599D19332cf8ED42b8C5e1bEF9cE19FA
-   > block number:        10430390
-   > block timestamp:     1566771460
+   > transaction hash:    0xcc696f585bd3c7be06ac220deb40ba1738582fcc054fdfc93c5535dadb8848a5
+   > Blocks: 1            Seconds: 4
+   > contract address:    0x9E3DF1843bE5Cb87848b215ce9742471E40EA5C6
+   > block number:        10449500
+   > block timestamp:     1566872065
    > account:             0xf12a2f2C500194f9780199E9fc2503AfF856d4db
-   > balance:             2.498288757
+   > balance:             4.986684685
    > gas used:            349694
    > gas price:           1 gwei
    > value sent:          0 ETH
@@ -57,13 +64,13 @@
 
    Deploying 'BetexMobileGondwana'
    -------------------------------
-   > transaction hash:    0xb3b57faa42de493c93b49ff59006d44a196d9701e3fc57c9b2672f0bac0a2c3c
-   > Blocks: 0            Seconds: 0
-   > contract address:    0xcD302630700f0D857EC30D02c16Bb62BFACb6B6a
-   > block number:        10430391
-   > block timestamp:     1566771465
+   > transaction hash:    0x1a54da962cc61edb88ddbfca6a9a20a9be5014de90ddeeaa0dcc86c994a1d4c4
+   > Blocks: 1            Seconds: 5
+   > contract address:    0xC9F30D8e30D19cf5D7EA2052fa0D087c94028278
+   > block number:        10449501
+   > block timestamp:     1566872070
    > account:             0xf12a2f2C500194f9780199E9fc2503AfF856d4db
-   > balance:             2.496375373
+   > balance:             4.984771301
    > gas used:            1913384
    > gas price:           1 gwei
    > value sent:          0 ETH
@@ -72,13 +79,13 @@
 
    Deploying 'BetexCore'
    ---------------------
-   > transaction hash:    0x95941f487c4edc93902466005d0a9311ac89dfc60a383b7d4e30d9ff9181db3a
+   > transaction hash:    0x521a5ae880cec3a29e67877327d9bbc7729c4e37dac83860775234a912d50e62
    > Blocks: 0            Seconds: 0
-   > contract address:    0x5a6796D076fdDBA14Fa2bAd1f6fd93d26B47b583
-   > block number:        10430392
-   > block timestamp:     1566771470
+   > contract address:    0x35Fa16A455442B4b4a84C344EEE303688A9FF4E7
+   > block number:        10449503
+   > block timestamp:     1566872080
    > account:             0xf12a2f2C500194f9780199E9fc2503AfF856d4db
-   > balance:             2.494923317
+   > balance:             4.983319245
    > gas used:            1452056
    > gas price:           1 gwei
    > value sent:          0 ETH
@@ -87,13 +94,13 @@
 
    Deploying 'BetexLaurasiaGondwana'
    ---------------------------------
-   > transaction hash:    0xb86bc0f32a71fc26f0d1275472f3fdbea22a1b8779e224b52bf6e27a02346464
+   > transaction hash:    0x6b5eda620231d706f88067109b1e0561bf39c09ffddb3ce5cf2b1b859a51f220
    > Blocks: 0            Seconds: 0
-   > contract address:    0x60942DE4C41053e40f6Ff4eed16f778dB06760bB
-   > block number:        10430393
-   > block timestamp:     1566771475
+   > contract address:    0x1826ab56d2a7D79052C9A01874970eC30897a18E
+   > block number:        10449505
+   > block timestamp:     1566872090
    > account:             0xf12a2f2C500194f9780199E9fc2503AfF856d4db
-   > balance:             2.493591997
+   > balance:             5.481987925
    > gas used:            1331320
    > gas price:           1 gwei
    > value sent:          0 ETH
@@ -102,13 +109,13 @@
 
    Deploying 'BetexStorage'
    ------------------------
-   > transaction hash:    0x9938ae7c274a35c013b19be3769ab6b55d794f5cc617510aedef72a89eeebdc4
+   > transaction hash:    0x29ac3b24e2dbc7cbe225f84abb486d57de64613e737c21a3d4a787746997182b
    > Blocks: 0            Seconds: 0
-   > contract address:    0xd4a18D52787ecEb2EbeeeB4e97bd857327337D1D
-   > block number:        10430394
-   > block timestamp:     1566771480
+   > contract address:    0xb6aC6738fd6B9059514328EBFAeDC690a1D89404
+   > block number:        10449506
+   > block timestamp:     1566872095
    > account:             0xf12a2f2C500194f9780199E9fc2503AfF856d4db
-   > balance:             2.490811078
+   > balance:             5.479207006
    > gas used:            2780919
    > gas price:           1 gwei
    > value sent:          0 ETH
@@ -117,13 +124,13 @@
 
    Deploying 'BetexSettings'
    -------------------------
-   > transaction hash:    0x1bfd1716eeaeec1c72728ab74848e654b7fc8aeb62387580628150f56cb864d5
+   > transaction hash:    0xb6ece996ebaee82324562a3cd079e03e1916f8bbe45c2c3e8631591529eef219
    > Blocks: 0            Seconds: 0
-   > contract address:    0x0b6E99f9B328D05F2AD96c31b7EE82bEa82E2C2C
-   > block number:        10430395
-   > block timestamp:     1566771485
+   > contract address:    0xD8D51C45029Da9E95a4722C6BCB2EC1284f4218D
+   > block number:        10449507
+   > block timestamp:     1566872100
    > account:             0xf12a2f2C500194f9780199E9fc2503AfF856d4db
-   > balance:             2.489058003
+   > balance:             5.977453931
    > gas used:            1753075
    > gas price:           1 gwei
    > value sent:          0 ETH
@@ -133,10 +140,10 @@
    > Saving migration to chain.
    > Saving artifacts
    -------------------------------------
-   > Total cost:         0.010709076 ETH
+   > Total cost:          0.01073884 ETH
 
 
 Summary
 =======
 > Total deployments:   8
-> Final cost:          0.010900058 ETH
+> Final cost:          0.010929822 ETH
